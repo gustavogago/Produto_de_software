@@ -1,50 +1,67 @@
-Backend — Plataforma de Doações e Trocas (FastAPI)
-
-API desenvolvida em FastAPI com banco de dados SQLite.
-Inclui suíte de testes automatizados com pytest.
-
-🚀 Como executar o backend
-
-Acesse a pasta do backend:
-
-cd backend
 
 
-Crie e ative um ambiente virtual:
+````markdown
+# Backend — Plataforma de Doações e Trocas (FastAPI)
 
-Windows:
+API desenvolvida em **FastAPI** com banco de dados **SQLite**.  
+Inclui suíte de testes automatizados com **pytest**.
 
-python -m venv .venv
-.venv\Scripts\activate
+---
 
+## 🚀 Como executar o backend
 
-Linux/Mac:
+1. **Acesse a pasta do backend**:
+   ```bash
+   cd backend
+````
 
-python3 -m venv .venv
-source .venv/bin/activate
+2. **Crie e ative um ambiente virtual**:
 
+   **Windows**:
 
-Instale as dependências:
+   ```bash
+   python -m venv .venv
+   .venv\Scripts\activate
+   ```
 
-pip install -r requirements.txt
+   **Linux/Mac**:
 
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
 
-Inicie o servidor:
+3. **Instale as dependências**:
 
-python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+   ```bash
+   pip install -r requirements.txt
+   ```
 
+4. **Inicie o servidor**:
 
-Acesse a documentação interativa (Swagger):
+   ```bash
+   python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+   ```
 
-http://127.0.0.1:8000/docs
+5. **Acesse a documentação interativa (Swagger)**:
 
-🧪 Executar testes
+   * [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+
+---
+
+## 🧪 Executar testes
 
 Para rodar os testes automatizados:
 
+```bash
 pytest -q
+```
 
-📂 Estrutura do projeto
+---
+
+## 📂 Estrutura do projeto
+
+```
 backend/
 │── app/                # Código da aplicação
 │   ├── main.py          # Ponto de entrada da API
@@ -54,3 +71,7 @@ backend/
 │── requirements.txt     # Dependências do projeto
 │── app.db               # Banco de dados SQLite
 │── README.md            # Este arquivo
+```
+
+```
+```
