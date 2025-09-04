@@ -10,14 +10,14 @@
       "name": "00 - Health",
       "item": [
         {
-          "name": "GET /api/health",
+          "name": "GET /api/health/",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/health",
+              "raw": "{{base_url}}/api/health/",
               "host": ["{{base_url}}"],
-              "path": ["api", "health"]
+              "path": ["api", "health", ""]
             }
           },
           "event": [
@@ -57,7 +57,7 @@
             "url": {
               "raw": "{{base_url}}/api/token/",
               "host": ["{{base_url}}"],
-              "path": ["api", "token"]
+              "path": ["api", "token", ""]
             }
           },
           "event": [
@@ -90,12 +90,12 @@
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\"username\": \"novo_usuario\", \"password\": \"teste123\"}"
+              "raw": "{\n  \"username\": \"novo_usuario\",\n  \"password\": \"teste123\",\n  \"password2\": \"teste123\",\n  \"email\": \"novo_usuario@example.com\",\n  \"first_name\": \"Novo\",\n  \"last_name\": \"Usuario\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/users/register/",
               "host": ["{{base_url}}"],
-              "path": ["api", "users", "register"]
+              "path": ["api", "users", "register", ""]
             }
           },
           "event": [
@@ -117,7 +117,7 @@
   "variable": [
     { "key": "base_url", "value": "http://127.0.0.1:8000" },
     { "key": "username", "value": "admin" },
-    { "key": "password", "value": "admin" },
+    { "key": "password", "value": "password" },
     { "key": "auth_token", "value": "" }
   ]
 }
