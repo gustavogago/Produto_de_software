@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.530" timestamp="2025-09-04T16:22:03.183237-03:00" hostname="P-NB32"><testcase classname="backend.api.tests.HealthCheckTest" name="test_health_check" time="0.167"><failure message="ModuleNotFoundError: No module named 'backend.urls'">self = &lt;api.tests.HealthCheckTest testMethod=test_health_check&gt;
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="1" skipped="0" tests="1" time="0.530" timestamp="2025-09-04T16:22:03.183237-03:00" hostname="P-NB32"><testcase classname="api.tests.HealthCheckTest" name="test_health_check" time="0.167"><failure message="ModuleNotFoundError: No module named 'backend.urls'">self = &lt;api.tests.HealthCheckTest testMethod=test_health_check&gt;
 
     def test_health_check(self):
         """Test that the health check endpoint returns a healthy status"""
