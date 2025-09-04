@@ -72,20 +72,7 @@ pytest --html=report.html --self-contained-html --css=custom-pytest-report.css
 - **TokenRefreshTest** → testa refresh de token válido/inválido.
 - **ProtectedEndpointTest** → valida acesso a endpoints protegidos (JWT).
 
-> Observação: são **testes de integração/funcionais de API**, não unitários. Eles validam o comportamento completo da aplicação (views, banco de dados, autenticação, etc).
+
 
 ---
 
-## ⚡ Dicas úteis
-- Para ver a saída de `print` nos testes:
-  ```bash
-  pytest -s
-  ```
-- Para rodar com detalhes (verbose):
-  ```bash
-  pytest -v
-  ```
-- Para limpar cache do pytest:
-  ```bash
-  pytest --cache-clear
-  ```
