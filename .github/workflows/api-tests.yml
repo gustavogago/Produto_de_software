@@ -21,40 +21,28 @@ jobs:
 
       - name: Install backend deps
         run: |
-          cd backend
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
+          python -m pip install -r backend/requirements.txt
 
       - name: Django migrate
-        run: |
-          cd backend
-          python manage.py migrate --noinput
+        run: python backend/manage.py migrate --noinput
 
-      - name: Create test superuser
+      - name: Start Django server (background, log to file)
         run: |
-          cd backend
-          echo "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@example.com', 'password') if not User.objects.filter(username='admin').exists() else None" | python manage.py shell
-
-      - name: Start Django server
-        run: |
-          cd backend
-          nohup python manage.py runserver 0.0.0.0:8000 --noreload > django.log 2>&1 &
+          # sem autoreload para não duplicar processo no CI
+          nohup python backend/manage.py runserver 0.0.0.0:8000 --noreload > django.log 2>&1 &
           echo $! > django.pid
-          sleep 5
+          sleep 1
+          echo "PID: $(cat django.pid)"
 
-      - name: Wait for API to be ready
+      # *** Espera por PORTA, não por rota ***
+      - name: Wait for port 8000
         run: |
-          for i in {1..30}; do
-            if curl -s http://127.0.0.1:8000/api/health/ | grep -q "ok"; then
-              echo "API is ready!"
-              exit 0
-            fi
-            echo "Waiting for API to be ready... attempt $i"
-            sleep 2
+          for i in {1..60}; do
+            (echo > /dev/tcp/127.0.0.1/8000) >/dev/null 2>&1 && { echo "Port is open"; exit 0; }
+            echo "Waiting API port... ($i)"; sleep 1
           done
-          echo "API did not become ready in time"
-          cat backend/django.log
-          exit 1
+          echo "API port did not open"; echo "--- django.log ---"; cat django.log; exit 1
 
       # --- Node/Newman ---
       - name: Setup Node
@@ -70,16 +58,17 @@ jobs:
           mkdir -p reports/postman
           newman run tests/postman/postman_collection.json \
             -e tests/postman/postman_environment_local.json \
-            --env-var "baseUrl=http://127.0.0.1:8000" \
+            --env-var baseUrl=http://127.0.0.1:8000 \
             --reporters cli,htmlextra \
             --reporter-htmlextra-export reports/postman/report.html
-        continue-on-error: true
+        # Se falhar, mostra logs do Django para debugar
+        if: always()
 
-      - name: Show Django log on failure
+      - name: Show Django log (on failure)
         if: failure()
         run: |
-          echo "--- Django Server Log ---"
-          cat backend/django.log || true
+          echo "--- django.log ---"
+          cat django.log || true
 
       - name: Upload Report
         if: always()
@@ -89,10 +78,7 @@ jobs:
           path: reports/postman/report.html
           retention-days: 7
 
-      - name: Stop Django server
+      - name: Stop Django (cleanup)
         if: always()
         run: |
-          if [ -f backend/django.pid ]; then
-            kill $(cat backend/django.pid) 2>/dev/null || true
-            rm -f backend/django.pid
-          fi
+          if [ -f django.pid ]; then kill "$(cat django.pid)" || true; fi
