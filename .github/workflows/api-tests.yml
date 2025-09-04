@@ -1,0 +1,84 @@
+name: API Tests (Postman/Newman)
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+jobs:
+  postman:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # --- Python/Django ---
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install backend deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r backend/requirements.txt
+
+      - name: Django migrate
+        run: python backend/manage.py migrate --noinput
+
+      - name: Start Django server (background, log to file)
+        run: |
+          # sem autoreload para não duplicar processo no CI
+          nohup python backend/manage.py runserver 0.0.0.0:8000 --noreload > django.log 2>&1 &
+          echo $! > django.pid
+          sleep 1
+          echo "PID: $(cat django.pid)"
+
+      # *** Espera por PORTA, não por rota ***
+      - name: Wait for port 8000
+        run: |
+          for i in {1..60}; do
+            (echo > /dev/tcp/127.0.0.1/8000) >/dev/null 2>&1 && { echo "Port is open"; exit 0; }
+            echo "Waiting API port... ($i)"; sleep 1
+          done
+          echo "API port did not open"; echo "--- django.log ---"; cat django.log; exit 1
+
+      # --- Node/Newman ---
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Newman
+        run: npm i -g newman newman-reporter-htmlextra
+
+      - name: Run Postman tests
+        run: |
+          mkdir -p reports/postman
+          newman run tests/postman/postman_collection.json \
+            -e tests/postman/postman_environment_local.json \
+            --env-var baseUrl=http://127.0.0.1:8000 \
+            --reporters cli,htmlextra \
+            --reporter-htmlextra-export reports/postman/report.html
+        # Se falhar, mostra logs do Django para debugar
+        if: always()
+
+      - name: Show Django log (on failure)
+        if: failure()
+        run: |
+          echo "--- django.log ---"
+          cat django.log || true
+
+      - name: Upload Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: postman-report
+          path: reports/postman/report.html
+          retention-days: 7
+
+      - name: Stop Django (cleanup)
+        if: always()
+        run: |
+          if [ -f django.pid ]; then kill "$(cat django.pid)" || true; fi
