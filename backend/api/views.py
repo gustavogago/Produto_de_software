@@ -4,6 +4,8 @@ from rest_framework import generics
 from .serializers import UserSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
+def health_check(request):
+    return JsonResponse({"status": "healthy"})
 
 class CreateUserView(generics.CreateAPIView):
     name = "Cadastro de Usuário"
