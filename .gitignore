@@ -3,5 +3,20 @@
 .vscode
 
 # python
-.venv
-__pycache__
+# Python/Django
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+.env
+.env.*
+backend/.env
+backend/db.sqlite3
+*.sqlite3
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/
