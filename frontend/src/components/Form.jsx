@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../app";
-import { ACCESS_TOKEN } from "../constants";
+import api from "../api";
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants";
 import "../styles/Form.css";
 
 function Form({ route, method }) {
@@ -11,13 +11,13 @@ function Form({ route, method }) {
   const initialData =
     method === "login"
       ? { username: "", password: "" }
-      : { 
-    username: email,
-    first_name: firstName, 
-    last_name: lastName, 
-    email, 
-    password 
-  };
+      : {
+          username: "",
+          first_name: "",
+          last_name: "",
+          email: "",
+          password: "",
+        };
 
   const [data, setData] = useState(initialData);
 
@@ -32,14 +32,21 @@ function Form({ route, method }) {
       if (method === "login") {
         response = await api.post(route, data);
         localStorage.setItem(ACCESS_TOKEN, response.data.access);
+        localStorage.setItem(REFRESH_TOKEN, response.data.refresh);
         navigate("/");
       } else {
-        response = await api.post(route, data);
+        // Para registro, adiciona username baseado no email
+        const registrationData = {
+          ...data,
+          username: data.email
+        };
+        response = await api.post(route, registrationData);
         navigate("/login");
       }
     } catch (error) {
-      alert("Erro ao processar requisição!");
-      console.error(error);
+      const msg = error?.response?.data || error.message || "Erro desconhecido";
+      alert(`Erro ao processar requisição: ${typeof msg === "string" ? msg : JSON.stringify(msg)}`);
+      console.error("Auth error:", error);
     }
   };
 
