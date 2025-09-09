@@ -11,7 +11,13 @@ function Form({ route, method }) {
   const initialData =
     method === "login"
       ? { username: "", password: "" }
-      : { first_name: "", last_name: "", email: "", password: "" };
+      : { 
+    username: email,
+    first_name: firstName, 
+    last_name: lastName, 
+    email, 
+    password 
+  };
 
   const [data, setData] = useState(initialData);
 
