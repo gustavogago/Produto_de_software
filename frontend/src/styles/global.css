@@ -1,0 +1,21 @@
+/* Variáveis de cores e espaçamentos */
+:root {
+  --main-bg: #F5F5F5;
+  --container-bg: #FFFFFF;
+  --main-green: #28A745;
+  --text-dark: #333333;
+  --text-regular: #555555;
+  --text-light: #777777;
+  --spacing-unit: 1rem;
+}
+
+/* Reset e centralização full-width */
+html, body {
+  height: 100%;
+  margin: 0;
+  background-color: var(--main-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Inter', sans-serif;
+}
