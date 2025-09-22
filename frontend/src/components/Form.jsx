@@ -12,7 +12,6 @@ function Form({ route, method }) {
     method === "login"
       ? { username: "", password: "" }
       : {
-          username: "",
           first_name: "",
           last_name: "",
           email: "",
@@ -33,14 +32,12 @@ function Form({ route, method }) {
         response = await api.post(route, data);
         localStorage.setItem(ACCESS_TOKEN, response.data.access);
         localStorage.setItem(REFRESH_TOKEN, response.data.refresh);
+
         navigate("/");
       } else {
-        // Para registro, adiciona username baseado no email
-        const registrationData = {
-          ...data,
-          username: data.email
-        };
-        response = await api.post(route, registrationData);
+        // Envie apenas os campos aceitos pelo serializer; o backend definirá username = email
+        const { first_name, last_name, email, password } = data;
+        response = await api.post(route, { first_name, last_name, email, password });
         navigate("/login");
       }
     } catch (error) {
