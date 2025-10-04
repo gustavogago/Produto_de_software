@@ -5,6 +5,10 @@ from .serializers import UserSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Item
 from .serializers import ItemSerializer
+from rest_framework import generics, permissions
+
+
+
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -64,3 +68,24 @@ class ReadItemView(generics.RetrieveAPIView):
     def get_queryset(self):
         user = self.request.user
         return Item.objects.filter(author=user)
+    
+#Classe para a visualização do perfil
+class UserProfileView(generics.RetrieveAPIView):
+    #responsavel por pegar as infos do banco e tranformar m json
+    serializer_class = UserSerializer
+    #Faz a validação se o usuario esta autenticado
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        #resposta GET
+        return self.request.user
+
+
+class UserUpdateView(generics.UpdateAPIView):
+    #responsavel por pegar as infos do banco e tranformar m json
+    serializer_class = UserSerializer
+    #Faz a validação se o usuario esta autenticado
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user

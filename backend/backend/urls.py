@@ -3,6 +3,7 @@ from django.urls import path, include
 from api.views import CreateUserView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+#Faz a configuração das rotas a partir das URLS
 urlpatterns = [
     path("admin/", admin.site.urls),
     #path("api/health/", health_check, name='health_check'),  # Adicione esta linha
