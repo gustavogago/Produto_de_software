@@ -1,0 +1,671 @@
+openapi: 3.0.3
+info:
+  title: GIVE.ME API
+  description: |
+    API para a plataforma GIVE.ME - uma aplicação de doação de itens.
+    
+    Esta API permite que usuários se registrem, façam login e gerenciem itens para doação.
+    
+    ## Autenticação
+    A API utiliza autenticação JWT (JSON Web Token). Para acessar endpoints protegidos, 
+    você deve incluir o token de acesso no header Authorization:
+    ```
+    Authorization: Bearer <access_token>
+    ```
+    
+    ## Fluxo de Autenticação
+    1. Registre um usuário em `/api/users/register/`
+    2. Faça login em `/api/users/login/` para obter tokens
+    3. Use o access_token para acessar endpoints protegidos
+    4. Renove o token usando `/api/token/refresh/` quando expirar
+    
+  version: "1.0.0"
+  contact:
+    name: Equipe GIVE.ME
+    email: suporte@giveme.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8000
+    description: Servidor de desenvolvimento
+  - url: https://api.giveme.com
+    description: Servidor de produção
+
+paths:
+  /api/users/register/:
+    post:
+      tags:
+        - Autenticação
+      summary: Registrar novo usuário
+      description: Cria uma nova conta de usuário no sistema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - first_name
+                - last_name
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email do usuário (será usado como username)
+                  example: "usuario@exemplo.com"
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  description: Senha do usuário
+                  example: "senha123"
+                first_name:
+                  type: string
+                  description: Primeiro nome do usuário
+                  example: "João"
+                last_name:
+                  type: string
+                  description: Sobrenome do usuário
+                  example: "Silva"
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    description: ID único do usuário
+                    example: 1
+                  email:
+                    type: string
+                    format: email
+                    description: Email do usuário
+                    example: "usuario@exemplo.com"
+                  first_name:
+                    type: string
+                    description: Primeiro nome
+                    example: "João"
+                  last_name:
+                    type: string
+                    description: Sobrenome
+                    example: "Silva"
+        '400':
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '409':
+          description: Email já existe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/users/login/:
+    post:
+      tags:
+        - Autenticação
+      summary: Fazer login
+      description: Autentica o usuário e retorna tokens JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  description: Email do usuário
+                  example: "usuario@exemplo.com"
+                password:
+                  type: string
+                  format: password
+                  description: Senha do usuário
+                  example: "senha123"
+      responses:
+        '200':
+          description: Login realizado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access:
+                    type: string
+                    description: Token de acesso JWT (válido por 30 minutos)
+                    example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+                  refresh:
+                    type: string
+                    description: Token de renovação JWT (válido por 1 dia)
+                    example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+        '401':
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/token/refresh/:
+    post:
+      tags:
+        - Autenticação
+      summary: Renovar token de acesso
+      description: Renova o token de acesso usando o token de renovação
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refresh
+              properties:
+                refresh:
+                  type: string
+                  description: Token de renovação JWT
+                  example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+      responses:
+        '200':
+          description: Token renovado com sucesso
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access:
+                    type: string
+                    description: Novo token de acesso JWT
+                    example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
+        '401':
+          description: Token de renovação inválido ou expirado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/items/:
+    post:
+      tags:
+        - Itens
+      summary: Criar novo item
+      description: Cria um novo item para doação
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - status
+                - category
+              properties:
+                title:
+                  type: string
+                  description: Título do item
+                  example: "Sofá 3 lugares"
+                description:
+                  type: string
+                  description: Descrição detalhada do item
+                  example: "Sofá em excelente estado, pouco uso"
+                category:
+                  type: string
+                  format: uuid
+                  description: ID da categoria do item
+                  example: "123e4567-e89b-12d3-a456-426614174000"
+                city:
+                  type: string
+                  format: uuid
+                  description: ID da cidade onde o item está localizado
+                  example: "123e4567-e89b-12d3-a456-426614174001"
+                status:
+                  type: string
+                  enum: [new, used]
+                  description: Estado do item
+                  example: "used"
+                listing_state:
+                  type: string
+                  enum: [active, inactive]
+                  description: Status da listagem
+                  default: "active"
+                  example: "active"
+      responses:
+        '201':
+          description: Item criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '400':
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Token não fornecido ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/items/{id}/:
+    get:
+      tags:
+        - Itens
+      summary: Obter detalhes de um item
+      description: Retorna os detalhes de um item específico do usuário autenticado
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID único do item
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Detalhes do item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '401':
+          description: Token não fornecido ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Item não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/item/update/{id}/:
+    put:
+      tags:
+        - Itens
+      summary: Atualizar item completo
+      description: Atualiza todos os campos de um item específico
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID único do item
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - status
+                - category
+              properties:
+                title:
+                  type: string
+                  description: Título do item
+                  example: "Sofá 3 lugares - Atualizado"
+                description:
+                  type: string
+                  description: Descrição detalhada do item
+                  example: "Sofá em bom estado, com algumas marcas de uso"
+                category:
+                  type: string
+                  format: uuid
+                  description: ID da categoria do item
+                  example: "123e4567-e89b-12d3-a456-426614174000"
+                city:
+                  type: string
+                  format: uuid
+                  description: ID da cidade
+                  example: "123e4567-e89b-12d3-a456-426614174001"
+                status:
+                  type: string
+                  enum: [new, used]
+                  description: Estado do item
+                  example: "used"
+                listing_state:
+                  type: string
+                  enum: [active, inactive]
+                  description: Status da listagem
+                  example: "active"
+      responses:
+        '200':
+          description: Item atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '400':
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Token não fornecido ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Item não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    patch:
+      tags:
+        - Itens
+      summary: Atualizar item parcialmente
+      description: Atualiza campos específicos de um item
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID único do item
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  description: Título do item
+                  example: "Sofá 3 lugares - Título Atualizado"
+                description:
+                  type: string
+                  description: Descrição detalhada do item
+                  example: "Nova descrição"
+                category:
+                  type: string
+                  format: uuid
+                  description: ID da categoria do item
+                  example: "123e4567-e89b-12d3-a456-426614174000"
+                city:
+                  type: string
+                  format: uuid
+                  description: ID da cidade
+                  example: "123e4567-e89b-12d3-a456-426614174001"
+                status:
+                  type: string
+                  enum: [new, used]
+                  description: Estado do item
+                  example: "new"
+                listing_state:
+                  type: string
+                  enum: [active, inactive]
+                  description: Status da listagem
+                  example: "inactive"
+      responses:
+        '200':
+          description: Item atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '400':
+          description: Erro de validação
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+        '401':
+          description: Token não fornecido ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Item não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/items/delete/{id}/:
+    delete:
+      tags:
+        - Itens
+      summary: Excluir item
+      description: Remove um item específico do usuário autenticado
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ID único do item
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '204':
+          description: Item excluído com sucesso
+        '401':
+          description: Token não fornecido ou inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Item não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Item:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID único do item
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        user:
+          type: integer
+          description: ID do usuário proprietário
+          example: 1
+        title:
+          type: string
+          description: Título do item
+          example: "Sofá 3 lugares"
+        description:
+          type: string
+          nullable: true
+          description: Descrição detalhada do item
+          example: "Sofá em excelente estado, pouco uso"
+        category:
+          type: string
+          format: uuid
+          description: ID da categoria do item
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        city:
+          type: string
+          format: uuid
+          nullable: true
+          description: ID da cidade onde o item está localizado
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        status:
+          type: string
+          enum: [new, used]
+          description: Estado do item
+          example: "used"
+        listing_state:
+          type: string
+          enum: [active, inactive]
+          description: Status da listagem
+          example: "active"
+        created_at:
+          type: string
+          format: date-time
+          description: Data e hora de criação
+          example: "2023-09-26T10:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Data e hora da última atualização
+          example: "2023-09-26T10:00:00Z"
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID único do usuário
+          example: 1
+        email:
+          type: string
+          format: email
+          description: Email do usuário
+          example: "usuario@exemplo.com"
+        first_name:
+          type: string
+          description: Primeiro nome
+          example: "João"
+        last_name:
+          type: string
+          description: Sobrenome
+          example: "Silva"
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID único da categoria
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          description: Nome da categoria
+          example: "Móveis"
+        slug:
+          type: string
+          description: Slug da categoria
+          example: "moveis"
+
+    City:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID único da cidade
+          example: "123e4567-e89b-12d3-a456-426614174001"
+        name:
+          type: string
+          description: Nome da cidade
+          example: "São Paulo"
+        state:
+          type: string
+          nullable: true
+          description: Estado/UF
+          example: "SP"
+
+    ItemPhoto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID único da foto
+          example: "123e4567-e89b-12d3-a456-426614174002"
+        item:
+          type: string
+          format: uuid
+          description: ID do item relacionado
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        url:
+          type: string
+          format: uri
+          description: URL da foto
+          example: "https://exemplo.com/fotos/item1.jpg"
+        position:
+          type: integer
+          description: Posição da foto na galeria
+          default: 1
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+          description: Data e hora de criação
+          example: "2023-09-26T10:00:00Z"
+
+    Error:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Mensagem de erro
+          example: "Erro de autenticação"
+        code:
+          type: string
+          description: Código do erro
+          example: "authentication_failed"
+
+    ValidationError:
+      type: object
+      properties:
+        field_name:
+          type: array
+          items:
+            type: string
+          description: Lista de erros para um campo específico
+          example: ["Este campo é obrigatório."]
+      additionalProperties:
+        type: array
+        items:
+          type: string
+
+tags:
+  - name: Autenticação
+    description: Endpoints relacionados ao registro, login e gerenciamento de tokens
+  - name: Itens
+    description: Endpoints para gerenciamento de itens de doação
