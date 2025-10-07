@@ -1,12 +1,20 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Item, UserProfile 
+from .models import Item, UserProfile, Notification 
+
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = ['id', 'notification_type', 'reference_id', 'message', 'is_read', 'created_at']
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ["photo_url"] 
+        fields = ["photo_url",'City','Bio','notifications_enabled'] 
+
 
 #faz a conversão para json
 class UserSerializer(serializers.ModelSerializer):
@@ -41,6 +49,15 @@ class UserSerializer(serializers.ModelSerializer):
         for attr, value in profile_data.items():
             setattr(profile_instance, attr, value)
         profile_instance.save()
+
+        if profile_instance.notifications_enabled:
+            Notification.objects.create(
+                user=user,
+                notification_type='profile',
+                message='Seu perfil foi atualizado com sucesso!'
+            )
+
+
         
         return user 
 
