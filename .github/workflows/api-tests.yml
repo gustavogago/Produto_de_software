@@ -28,9 +28,12 @@ jobs:
           pip install -r requirements.txt
           pip install pytest pytest-django pytest-html
 
+      - name: Create reports directory
+        run: mkdir -p ../reports
+
       - name: Run Django tests (pytest)
         run: |
-          pytest --maxfail=1 --disable-warnings -v \
+          pytest --maxfail=5 --disable-warnings -v \
                  --junitxml=../reports/junit.xml \
                  --html=../reports/test-report.html
 
@@ -39,6 +42,7 @@ jobs:
         with:
           name: django-test-reports
           path: reports/
+          retention-days: 7
 
   test-postman:
     runs-on: ubuntu-latest
@@ -59,6 +63,9 @@ jobs:
       - name: Install Newman
         run: npm install -g newman
 
+      - name: Create reports directory
+        run: mkdir -p ../../reports
+
       - name: Run Postman tests
         run: |
           newman run postman_collection.json \
@@ -70,4 +77,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: postman-test-reports
-          path: reports/
+          path: ../../reports/
+          retention-days: 7
