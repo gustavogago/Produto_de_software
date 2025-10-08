@@ -1,12 +1,12 @@
 from django.urls import path
 from . import views
-from .views import UserProfileView, UserUpdateView
+from .views import UserProfileView, UserProfileUpdateView 
 
 urlpatterns = [
     path("items/", views.CreateItemView.as_view(), name="note-list"),
     path("items/delete/<int:pk>/", views.DeleteItemView.as_view(), name="delete-note"),
     path("item/update/<int:pk>/", views.UpdateItemView.as_view(), name="update-note"),
     path("items/<int:pk>/", views.ReadItemView.as_view(), name="note-detail"),
-    path("users/profile/", UserProfileView.as_view(), name="user-profile"),
-    path("users/profile/update/", UserUpdateView.as_view(), name="user-update")
+    path("profile/", UserProfileView.as_view(), name="user-profile"),
+    path("profile/update/", UserProfileUpdateView.as_view(), name="user-update")
 ]
