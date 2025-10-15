@@ -1,0 +1,12 @@
+[
+  {
+    "id": 201,
+    "title": "Ticket exemplo A",
+    "status": "open"
+  },
+  {
+    "id": 202,
+    "title": "Ticket exemplo B",
+    "status": "pending"
+  }
+]
