@@ -20,7 +20,8 @@ class UserSerializer(serializers.ModelSerializer):
 class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
-        fields = '__all__'
+        fields = "__all__"
+        read_only_fields = ("id", "user", "created_at", "updated_at")
 
     def create(self, validated_data):
         item = Item.objects.create(**validated_data)
