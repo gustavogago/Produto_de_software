@@ -16,8 +16,14 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/health/",
-              "host": ["{{base_url}}"],
-              "path": ["api", "health", ""]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "health",
+                ""
+              ]
             }
           },
           "event": [
@@ -61,8 +67,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/users/register/",
-              "host": ["{{base_url}}"],
-              "path": ["api", "users", "register", ""]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "register",
+                ""
+              ]
             }
           },
           "event": [
@@ -99,8 +112,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/users/login/",
-              "host": ["{{base_url}}"],
-              "path": ["api", "users", "login", ""]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "login",
+                ""
+              ]
             }
           },
           "event": [
@@ -138,8 +158,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/token/refresh/",
-              "host": ["{{base_url}}"],
-              "path": ["api", "token", "refresh", ""]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "token",
+                "refresh",
+                ""
+              ]
             }
           },
           "event": [
@@ -185,8 +212,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/items/",
-              "host": ["{{base_url}}"],
-              "path": ["api", "items", ""]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "items",
+                ""
+              ]
             }
           },
           "event": [
@@ -220,8 +253,15 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/items/{{item_id}}/",
-              "host": ["{{base_url}}"],
-              "path": ["api", "items", "{{item_id}}", ""]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "items",
+                "{{item_id}}",
+                ""
+              ]
             }
           },
           "event": [
@@ -261,8 +301,16 @@
             },
             "url": {
               "raw": "{{base_url}}/api/item/update/{{item_id}}/",
-              "host": ["{{base_url}}"],
-              "path": ["api", "item", "update", "{{item_id}}", ""]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "item",
+                "update",
+                "{{item_id}}",
+                ""
+              ]
             }
           },
           "event": [
@@ -302,8 +350,16 @@
             },
             "url": {
               "raw": "{{base_url}}/api/item/update/{{item_id}}/",
-              "host": ["{{base_url}}"],
-              "path": ["api", "item", "update", "{{item_id}}", ""]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "item",
+                "update",
+                "{{item_id}}",
+                ""
+              ]
             }
           },
           "event": [
@@ -335,8 +391,16 @@
             ],
             "url": {
               "raw": "{{base_url}}/api/items/delete/{{item_id}}/",
-              "host": ["{{base_url}}"],
-              "path": ["api", "items", "delete", "{{item_id}}", ""]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "items",
+                "delete",
+                "{{item_id}}",
+                ""
+              ]
             }
           },
           "event": [
@@ -391,6 +455,17 @@
     {
       "key": "city_id",
       "value": "123e4567-e89b-12d3-a456-426614174001"
+    }
+  ],
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
     }
   ]
 }
