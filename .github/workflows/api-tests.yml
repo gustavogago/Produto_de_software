@@ -21,7 +21,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'   # mantém compatível com seu projeto
+          python-version: '3.11'
 
       - name: Install backend deps
         run: |
@@ -30,10 +30,10 @@ jobs:
           pip install pytest pytest-django
 
       - name: Run Django tests
-        run: |
-          pytest -q \
-            --junitxml=reports/django-junit.xml
         working-directory: backend
+        run: |
+          pytest -q --ds backend.settings \
+            --junitxml=../reports/django-junit.xml
 
       # ===== Postman (Newman) =====
       - name: Set up Node.js
