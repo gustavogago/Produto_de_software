@@ -7,14 +7,13 @@ function typeLogin(u, p) {
   cy.get('form.login-form input[name="password"]').clear().type(p);
 }
 
-
-  /* =========================
-   SUÍTE QUE DEVE PASSAR
+/* =========================
+   SUITE QUE DEVE PASSAR
    ========================= */
-describe('Login (DOM atual)', () => {
+describe('Login', () => {
   beforeEach(() => cy.visit('/login'));
 
-  it('mostra erro com credenciais inválidas', () => {
+  it('credenciais invalidas -> alerta', () => {
     cy.intercept('POST', LOGIN_URL, {
       statusCode: 401,
       body: { detail: 'Invalid credentials' },
@@ -32,7 +31,7 @@ describe('Login (DOM atual)', () => {
     cy.location('pathname').should('include', 'login');
   });
 
-  it('login com sucesso redireciona', () => {
+  it('sucesso -> redireciona', () => {
     cy.intercept('POST', LOGIN_URL, {
       statusCode: 200,
       headers: { 'content-type': 'application/json' },
@@ -46,7 +45,7 @@ describe('Login (DOM atual)', () => {
     cy.location('pathname').should('not.include', 'login');
   });
 
-  it('erro 500 mostra mensagem amigável (alert)', () => {
+  it('erro 500 -> alerta', () => {
     cy.intercept('POST', LOGIN_URL, { statusCode: 500, body: { detail: 'Server error' } }).as('serverErr');
     cy.window().then((win) => cy.stub(win, 'alert').as('alert'));
 
@@ -58,7 +57,7 @@ describe('Login (DOM atual)', () => {
     cy.location('pathname').should('include', 'login');
   });
 
-  it('validação 400 (faltou username/password) — força backend', () => {
+  it('validacao 400 -> alerta', () => {
     cy.intercept('POST', LOGIN_URL, {
       statusCode: 400,
       body: { username: ['Este campo é obrigatório.'], password: ['Este campo é obrigatório.'] },
@@ -66,7 +65,7 @@ describe('Login (DOM atual)', () => {
 
     cy.window().then((win) => cy.stub(win, 'alert').as('alert'));
 
-    // Desliga validação nativa p/ permitir o POST sem campos
+    // Desliga validacao nativa p/ permitir o POST sem campos
     cy.get('form.login-form').invoke('attr', 'novalidate', 'novalidate');
     cy.get('input[name="username"]').invoke('prop', 'required', false);
     cy.get('input[name="password"]').invoke('prop', 'required', false);
@@ -78,7 +77,7 @@ describe('Login (DOM atual)', () => {
     cy.location('pathname').should('include', 'login');
   });
 
-  it('401 sem "detail" não quebra (mostra algum alerta)', () => {
+  it('401 sem detail -> alerta', () => {
     cy.intercept('POST', LOGIN_URL, { statusCode: 401, body: { error: 'no-detail' } }).as('weird');
     cy.window().then((win) => cy.stub(win, 'alert').as('alert'));
 
@@ -90,12 +89,12 @@ describe('Login (DOM atual)', () => {
     cy.location('pathname').should('include', 'login');
   });
 
-  it('link de cadastro navega corretamente', () => {
+  it('link cadastro funciona', () => {
     cy.contains('a', /sign\s*up|criar\s*conta/i).click({ force: true });
     cy.location('pathname').should('match', /register|signup|sign\-up|cadastro/i);
   });
 
-  it('password oculto por padrão; alterna se existir toggle', () => {
+  it('senha oculta por padrao (toggle se existir)', () => {
     cy.get('form.login-form input[name="password"]').should('have.attr', 'type', 'password');
 
     cy.get('body').then(($b) => {
@@ -115,11 +114,9 @@ describe('Login (DOM atual)', () => {
     });
   });
 
-  /* ======= TESTES VÁLIDOS ADICIONADOS ======= */
-
-  it('HTML5 required: bloqueia submit quando username está vazio (nenhum POST)', () => {
+  it('required bloqueia username vazio', () => {
     cy.intercept('POST', LOGIN_URL, () => {
-      throw new Error('Não deveria chamar API com username vazio (required)');
+      throw new Error('Nao deveria chamar API com username vazio (required)');
     }).as('guard');
 
     cy.get('form.login-form input[name="username"]').clear(); // vazio
@@ -133,9 +130,9 @@ describe('Login (DOM atual)', () => {
     cy.wait(100);
   });
 
-  it('HTML5 required: bloqueia submit quando password está vazio (nenhum POST)', () => {
+  it('required bloqueia password vazio', () => {
     cy.intercept('POST', LOGIN_URL, () => {
-      throw new Error('Não deveria chamar API com password vazio (required)');
+      throw new Error('Nao deveria chamar API com password vazio (required)');
     }).as('guard');
 
     cy.get('form.login-form input[name="username"]').clear().type('admin@example.com');
@@ -149,7 +146,7 @@ describe('Login (DOM atual)', () => {
     cy.wait(100);
   });
 
-  it('Enter no campo password envia o formulário', () => {
+  it('enter no password envia', () => {
     cy.intercept('POST', LOGIN_URL, { statusCode: 200, body: { access: 'fake-access-token', refresh: 'fake-refresh-token' } }).as('loginOkEnter');
 
     cy.get('form.login-form input[name="username"]').clear().type('admin@example.com');
@@ -158,7 +155,7 @@ describe('Login (DOM atual)', () => {
     cy.wait('@loginOkEnter');
   });
 
-  it('payload correto: contém username e password', () => {
+  it('payload correto', () => {
     cy.intercept('POST', LOGIN_URL, (req) => {
       expect(req.method).to.eq('POST');
       expect(req.body).to.have.property('username', 'admin@example.com');
@@ -171,7 +168,7 @@ describe('Login (DOM atual)', () => {
     cy.wait('@loginPayload');
   });
 
-  it('URL do endpoint confere', () => {
+  it('endpoint url ok', () => {
     cy.intercept('POST', LOGIN_URL, (req) => {
       expect(req.url).to.match(/\/api\/users\/login\/?/);
       req.reply({ statusCode: 200, body: { access: 'fake-access-token', refresh: 'fake-refresh-token' } });
@@ -182,7 +179,7 @@ describe('Login (DOM atual)', () => {
     cy.wait('@loginUrl');
   });
 
-  it('username com espaços: tolerante (ignora espaços ao comparar)', () => {
+  it('username com espacos tolerante', () => {
     cy.intercept('POST', LOGIN_URL, (req) => {
       const u = String(req.body?.username || '');
       expect(u.replace(/\s/g, '')).to.eq('admin@example.com');
@@ -194,7 +191,7 @@ describe('Login (DOM atual)', () => {
     cy.wait('@loginTrimTol');
   });
 
-  it('401 com mensagem PT/EN ainda dispara alert', () => {
+  it('401 pt en -> alerta', () => {
     cy.intercept('POST', LOGIN_URL, { statusCode: 401, body: { detail: 'Credenciais inválidas' } }).as('pt401');
     cy.window().then((win) => cy.stub(win, 'alert').as('alert'));
 
@@ -205,7 +202,7 @@ describe('Login (DOM atual)', () => {
     cy.get('@alert').should('have.been.called');
   });
 
-  it('Network error (sem status) mostra alert e permanece', () => {
+  it('erro de rede -> alerta', () => {
     cy.intercept('POST', LOGIN_URL, { forceNetworkError: true }).as('netErr');
     cy.window().then((win) => cy.stub(win, 'alert').as('alert'));
 
@@ -217,7 +214,7 @@ describe('Login (DOM atual)', () => {
     cy.location('pathname').should('include', 'login');
   });
 
-  it('após sucesso, algum item do localStorage contém o token de acesso', () => {
+  it('apos sucesso localStorage tem access', () => {
     cy.intercept('POST', LOGIN_URL, {
       statusCode: 200,
       body: { access: 'fake-access-token', refresh: 'fake-refresh-token' },
@@ -236,12 +233,12 @@ describe('Login (DOM atual)', () => {
 });
 
 /* =========================
-   SUÍTE FALHANDO DE PROPÓSITO
+   SUITE FALHANDO DE PROPOSITO
    ========================= */
-describe('Login (falhos de propósito)', () => {
+describe('Login - falha proposital', () => {
   beforeEach(() => cy.visit('/login'));
 
-  it('exige toast no DOM ao invés de alert (vai falhar)', () => {
+  it('espera toast no DOM (falha)', () => {
     cy.intercept('POST', LOGIN_URL, { statusCode: 401, body: { detail: 'Invalid credentials' } }).as('fail');
 
     typeLogin('admin@example.com', 'wrong');
@@ -251,7 +248,7 @@ describe('Login (falhos de propósito)', () => {
     cy.get('[role="alert"], .toast-error, .alert-danger').should('contain.text', 'Invalid credentials');
   });
 
-  it('redireciona exatamente para /dashboard (vai falhar)', () => {
+  it('espera /dashboard (falha)', () => {
     cy.intercept('POST', LOGIN_URL, {
       statusCode: 200,
       body: { access: 'a', refresh: 'r' },
@@ -264,7 +261,7 @@ describe('Login (falhos de propósito)', () => {
     cy.location('pathname').should('eq', '/dashboard');
   });
 
-  it('salva tokens com chaves jwt_access/jwt_refresh (vai falhar)', () => {
+  it('espera jwt_access no storage (falha)', () => {
     cy.intercept('POST', LOGIN_URL, {
       statusCode: 200,
       body: { access: 'a', refresh: 'r' },
@@ -280,7 +277,7 @@ describe('Login (falhos de propósito)', () => {
     });
   });
 
-  it('bloqueia duplo clique: exatamente 1 request (vai falhar)', () => {
+  it('duplo clique -> 1 request (falha)', () => {
     let hits = 0;
     cy.intercept('POST', LOGIN_URL, (req) => {
       hits += 1;
@@ -294,7 +291,7 @@ describe('Login (falhos de propósito)', () => {
     cy.wrap(null).should(() => expect(hits).to.eq(1));
   });
 
-  it('trim estrito no username (vai falhar se não trimar)', () => {
+  it('trim estrito username (falha)', () => {
     cy.intercept('POST', LOGIN_URL, (req) => {
       expect(req.body?.username).to.eq('admin@example.com');
       req.reply({ statusCode: 200, body: { access: 'a', refresh: 'r' } });
@@ -305,11 +302,11 @@ describe('Login (falhos de propósito)', () => {
     cy.wait('@ok');
   });
 
-  it('password visível por padrão (vai falhar)', () => {
+  it('senha visivel por padrao (falha)', () => {
     cy.get('form.login-form input[name="password"]').should('have.attr', 'type', 'text');
   });
 
-  it('mostra contador de tentativas restantes (vai falhar)', () => {
+  it('contador de tentativas (falha)', () => {
     cy.intercept('POST', LOGIN_URL, { statusCode: 401, body: { detail: 'Invalid credentials' } }).as('fail');
 
     typeLogin('admin@example.com', 'wrong');
@@ -318,5 +315,4 @@ describe('Login (falhos de propósito)', () => {
 
     cy.get('[data-cy="attempts-left"]').should('contain.text', '2 tentativas restantes');
   });
-
 });

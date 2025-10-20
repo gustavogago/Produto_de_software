@@ -1,34 +1,27 @@
-const { defineConfig } = require("cypress");
+// frontend/cypress.config.ts
+import { defineConfig } from 'cypress';
 
-module.exports = defineConfig({
+export default defineConfig({
   e2e: {
+    baseUrl: 'http://localhost:5173',
+    specPattern: 'cypress/e2e/**/*.cy.{js,ts,jsx,tsx}',
+    viewportWidth: 1366,
+    viewportHeight: 768,
+    video: true,
+    screenshotOnRunFailure: true,
     setupNodeEvents(on, config) {
-      
+      // registra o plugin do reporter
       require('cypress-mochawesome-reporter/plugin')(on);
       return config;
     },
-    baseUrl: process.env.CYPRESS_BASE_URL || "http://localhost:5173",
-    env: {
-      apiUrl: process.env.CYPRESS_API_URL || "http://127.0.0.1:8000",
-      loginPath: "/login",
-    },
-    chromeWebSecurity: false,
-    
-    specPattern: "cypress/e2e/**/*.cy.{js,ts}",
   },
-
-  
-  reporter: "cypress-mochawesome-reporter",
+  reporter: 'cypress-mochawesome-reporter',
   reporterOptions: {
-    reportDir: "cypress/reports",
+    reportDir: 'cypress/reports',
     charts: true,
-    reportPageTitle: "Relatório E2E",
+    reportPageTitle: 'Relatório E2E',
     embeddedScreenshots: true,
-    inlineAssets: true,      // gera um HTML auto-contido
+    inlineAssets: true,
     saveAllAttempts: false,
   },
-
-  
-  video: false,
-  screenshotOnRunFailure: true,
 });
