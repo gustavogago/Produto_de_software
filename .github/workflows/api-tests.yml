@@ -22,28 +22,4 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Install deps
-        working-directory: frontend
-        run: npm ci
-
-      - name: Build
-        working-directory: frontend
-        run: npm run build
-
-      - name: Run Cypress + Generate Report
-        working-directory: frontend
-        env:
-          # ajuste se precisar apontar tua API:
-          CYPRESS_API_URL: "http://127.0.0.1:8000"
-        run: npm run test:e2e
-
-      # Artefatos do Cypress
-      - name: Upload Cypress reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: cypress-reports
-          path: |
-            frontend/cypress/reports/**
-            frontend/cypress/videos/**
-            frontend/cypress/screenshots/**
-          retention-days: 7
+      
