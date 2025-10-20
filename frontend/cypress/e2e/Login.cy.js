@@ -319,5 +319,4 @@ describe('Login (falhos de propósito)', () => {
     cy.get('[data-cy="attempts-left"]').should('contain.text', '2 tentativas restantes');
   });
 
-  
 });
