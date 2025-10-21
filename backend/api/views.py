@@ -1,15 +1,20 @@
-from django.shortcuts import render
 from django.contrib.auth.models import User
-from rest_framework import generics
-from .serializers import UserSerializer, UserCreateSerializer
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Item, UserProfile, Notification
-from .serializers import ItemSerializer
-from rest_framework import generics, permissions,status
+from django.http import Http404
+from django.shortcuts import render
+from rest_framework import generics, permissions, status
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .serializers import UserProfileSerializer
-from django.http import Http404
+
+from .models import Category, City, Item, Notification, UserProfile
+from .serializers import (
+    CategorySerializer,
+    CitySerializer,
+    ItemSerializer,
+    UserCreateSerializer,
+    UserProfileSerializer,
+    UserSerializer,
+)
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -29,13 +34,10 @@ class CreateItemView(generics.CreateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Item.objects.filter(author=user)
+        return Item.objects.filter(user=user)
 
     def perform_create(self, serializer):
-        if serializer.is_valid():
-            serializer.save(user=self.request.user)
-        else: 
-            print(serializer.errors)
+        serializer.save(user=self.request.user)
     
 class DeleteItemView(generics.DestroyAPIView):
     name = "Delete Item"
@@ -46,7 +48,7 @@ class DeleteItemView(generics.DestroyAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Item.objects.filter(author=user)
+        return Item.objects.filter(user=user)
 
 class UpdateItemView(generics.UpdateAPIView):
     name = "Update Item"
@@ -57,7 +59,7 @@ class UpdateItemView(generics.UpdateAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Item.objects.filter(author=user)
+        return Item.objects.filter(user=user)
 
 class ReadItemView(generics.RetrieveAPIView):
     name = "Read Item"
@@ -68,7 +70,7 @@ class ReadItemView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return Item.objects.filter(author=user)
+        return Item.objects.filter(user=user)
     
 class UserProfileView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
@@ -93,4 +95,18 @@ class UserProfileUpdateView(generics.RetrieveUpdateAPIView):
     
 class CreateUserView(generics.CreateAPIView):
     serializer_class = UserCreateSerializer 
+    permission_classes = [AllowAny]
+
+
+class ListCategoriesView(generics.ListAPIView):
+    """Lista todas as categorias disponíveis"""
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = [AllowAny]
+
+
+class ListCitiesView(generics.ListAPIView):
+    """Lista todas as cidades disponíveis"""
+    queryset = City.objects.all()
+    serializer_class = CitySerializer
     permission_classes = [AllowAny]
