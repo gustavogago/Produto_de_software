@@ -52,7 +52,7 @@ export default function Home() {
         />
         <div className="highlight-info">
           <h2>TOP Donations</h2>
-          <Link to="/list-item">
+          <Link to="/create-item">
             <button>I WANT IT</button>
           </Link>
         </div>
