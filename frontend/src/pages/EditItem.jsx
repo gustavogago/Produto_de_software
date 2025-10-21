@@ -45,7 +45,7 @@ export default function EditItem() {
     e.preventDefault();
     try {
       setSaving(true);
-      await api.put(`/items/${id}/`, {
+      await api.put(`/items/update/${id}/`, {
         title: form.title,
         description: form.description,
         category: form.category,
