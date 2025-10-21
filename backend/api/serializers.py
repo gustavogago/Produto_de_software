@@ -1,9 +1,20 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Item, UserProfile, Notification 
 from rest_framework.validators import UniqueValidator
 
-from .models import Item, Notification, UserProfile
+from .models import Category, City, Item, Notification, UserProfile
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'slug']
+
+
+class CitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = City
+        fields = ['id', 'name', 'state']
 
 
 class NotificationSerializer(serializers.ModelSerializer):
