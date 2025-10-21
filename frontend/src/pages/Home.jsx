@@ -6,15 +6,33 @@ import { MainHeader, SearchBar, BottomNav, fullUrl, LoadingContainer, EmptyState
 
 export default function Home() {
   const [items, setItems] = useState([]);
+  const [allItems, setAllItems] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
+        // Buscar itens
         const { data } = await api.get("/items/");
         const list = Array.isArray(data) ? data : (data?.results || []);
-        if (mounted) setItems(list);
+        if (mounted) {
+          setAllItems(list);
+          setItems(list);
+        }
+
+        // Buscar categorias
+        try {
+          const { data: categoriesData } = await api.get("/categories/");
+          const categoryList = Array.isArray(categoriesData) ? categoriesData : (categoriesData?.results || []);
+          if (mounted) {
+            setCategories(categoryList);
+          }
+        } catch (catError) {
+          console.error("categories fetch", catError);
+        }
       } catch (e) {
         console.error("home fetch", e);
       } finally {
@@ -23,6 +41,28 @@ export default function Home() {
     })();
     return () => (mounted = false);
   }, []);
+
+  const handleCategoryFilter = (categoryName) => {
+    setSelectedCategory(categoryName);
+    
+    if (categoryName === "All") {
+      setItems(allItems);
+    } else {
+      const filtered = allItems.filter(item => {
+        // O backend retorna category_name como string
+        if (item.category_name) {
+          return item.category_name === categoryName;
+        }
+        // Fallback: comparar por nome da categoria se vier como objeto
+        if (typeof item.category === 'object' && item.category?.name) {
+          return item.category.name === categoryName;
+        }
+        // Caso a categoria seja apenas uma string
+        return item.category === categoryName;
+      });
+      setItems(filtered);
+    }
+  };
 
   return (
     <div className="home">
@@ -45,11 +85,21 @@ export default function Home() {
       <section className="categories">
         <h2>Categories</h2>
         <div className="chips">
-          <button className="chip active">All</button>
-          <button className="chip">Smartphones</button>
-          <button className="chip">Laptops</button>
-          <button className="chip">Clothes</button>
-          <button className="chip">Accessories</button>
+          <button 
+            className={`chip ${selectedCategory === "All" ? "active" : ""}`}
+            onClick={() => handleCategoryFilter("All")}
+          >
+            All
+          </button>
+          {categories.map((cat) => (
+            <button 
+              key={cat.id}
+              className={`chip ${selectedCategory === cat.name ? "active" : ""}`}
+              onClick={() => handleCategoryFilter(cat.name)}
+            >
+              {cat.name}
+            </button>
+          ))}
         </div>
       </section>
 
