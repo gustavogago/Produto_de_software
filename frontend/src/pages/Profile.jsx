@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FiArrowLeft, FiSearch, FiHeart, FiUser, FiHome } from "react-icons/fi";
 import "../styles/Profile.css";
+import { BackHeader, BottomNav } from "./Base";
 
 const mockItems = [
   { title: "Vintage Camera", img: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80" },
@@ -31,12 +31,7 @@ export default function Profile() {
 
   return (
     <div className="profile-page">
-      <header className="profile-header">
-        <button className="icon-btn" aria-label="Voltar" onClick={() => navigate(-1)}>
-          <FiArrowLeft size={22} />
-        </button>
-        <h2>Profile</h2>
-      </header>
+      <BackHeader title="Profile" />
       <div className="profile-avatar">
         <div className="avatar-img" />
       </div>
@@ -68,12 +63,7 @@ export default function Profile() {
           <div className="empty-tab">Content for "{tabs[activeTab]}" tab</div>
         )}
       </section>
-      <nav className="bottom-nav">
-        <Link to="/" className="nav-link"><FiHome size={20} /><span>Home</span></Link>
-        <Link to="/search" className="nav-link"><FiSearch size={20} /><span>Search</span></Link>
-        <Link to="/favorites" className="nav-link"><FiHeart size={20} /><span>Favorites</span></Link>
-        <Link to="/profile" className="nav-link active"><FiUser size={20} /><span>Profile</span></Link>
-      </nav>
+      <BottomNav activePage="profile" />
     </div>
   );
 }

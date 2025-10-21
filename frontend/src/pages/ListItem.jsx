@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
+import { BackHeader, inputStyle, labelStyle, primaryButtonStyle } from "./Base";
 
 export default function ListItem() {
   const navigate = useNavigate();
@@ -75,7 +76,6 @@ export default function ListItem() {
     try {
       setSubmitting(true);
       
-      // Buscar ID da categoria pelo nome
       const categoryObj = categories.find(c => 
         c.name.toLowerCase() === category.toLowerCase()
       );
@@ -91,34 +91,26 @@ export default function ListItem() {
         return "used";
       };
 
-      // First upload photos if any
-      let photoUrls = [];
-      if (files.length > 0) {
-        const formData = new FormData();
-        files.forEach((file, index) => {
-          formData.append(`photo_${index}`, file);
-        });
-        try {
-          const photoRes = await api.post('/upload-photos/', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-          });
-          photoUrls = photoRes.data.urls;
-        } catch (err) {
-          console.error('Error uploading photos:', err);
-        }
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('description', desc);
+      formData.append('category', categoryObj.id);
+      formData.append('status', mapConditionToStatus(condition));
+      formData.append('listing_state', 'active');
+      
+      if (location) {
+        formData.append('city', location);
       }
+      
+      files.forEach((file) => {
+        formData.append('photos', file);
+      });
 
-      const payload = {
-        title: title,
-        description: desc,
-        category: categoryObj.id,
-        city: location,  // Assuming we have a city ID from a dropdown
-        status: mapConditionToStatus(condition),
-        listing_state: "active",
-        photos: photoUrls
-      };
-
-      const { data } = await api.post("items/create/", payload);
+      const { data } = await api.post("items/create/", formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
 
       alert("Item publicado com sucesso!");
       console.log("Item criado:", data);
@@ -158,19 +150,7 @@ export default function ListItem() {
         }}
         aria-labelledby="li-title"
       >
-        <header style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-          <button
-            type="button"
-            aria-label="Voltar"
-            onClick={() => history.back()}
-            style={{ border: 0, background: "transparent", cursor: "pointer", fontSize: 20 }}
-          >
-            ←
-          </button>
-          <h1 id="li-title" style={{ margin: 0, fontSize: 24, color: "var(--text-dark)" }}>
-            Cadastrar novo produto
-          </h1>
-        </header>
+        <BackHeader title="Cadastrar novo produto" />
 
         {/* Photos */}
         <section style={{ marginBottom: 24 }}>
@@ -353,13 +333,7 @@ export default function ListItem() {
             type="submit"
             disabled={submitting}
             style={{
-              background: "var(--main-green)",
-              color: "#fff",
-              border: 0,
-              borderRadius: 12,
-              padding: "12px 20px",
-              fontWeight: 600,
-              cursor: "pointer",
+              ...primaryButtonStyle,
               opacity: submitting ? 0.7 : 1,
             }}
           >
@@ -371,16 +345,7 @@ export default function ListItem() {
   );
 }
 
-const inputStyle = {
-  width: "100%",
-  padding: "12px 14px",
-  borderRadius: 12,
-  border: "1px solid #ddd",
-  background: "#fff",
-  color: "var(--text-dark)",
-  outline: "none",
-};
-const labelStyle = { display: "block", fontSize: 12, color: "var(--text-light)", marginBottom: 6 };
+// Removendo as constantes duplicadas - agora vêm de Base.jsx
 
 function Segmented({ value, onChange, options }) {
   return (
