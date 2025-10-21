@@ -91,12 +91,31 @@ export default function ListItem() {
         return "used";
       };
 
+      // First upload photos if any
+      let photoUrls = [];
+      if (files.length > 0) {
+        const formData = new FormData();
+        files.forEach((file, index) => {
+          formData.append(`photo_${index}`, file);
+        });
+        try {
+          const photoRes = await api.post('/upload-photos/', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+          });
+          photoUrls = photoRes.data.urls;
+        } catch (err) {
+          console.error('Error uploading photos:', err);
+        }
+      }
+
       const payload = {
         title: title,
         description: desc,
         category: categoryObj.id,
+        city: location,  // Assuming we have a city ID from a dropdown
         status: mapConditionToStatus(condition),
-        listing_state: "active"
+        listing_state: "active",
+        photos: photoUrls
       };
 
       const { data } = await api.post("items/create/", payload);

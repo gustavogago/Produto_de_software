@@ -69,10 +69,11 @@ export default function ProductDetail() {
   }
 
   const typeLabel =
-    item.type === "Sell" ? "Available for Sale" :
-    item.type === "Donation" ? "Available for Donation" : "Available for Trade";
+    item.type === "Sell" ? "Disponível para Venda" :
+    item.type === "Donation" ? "Disponível para Doação" : "Disponível para Troca";
 
-  const cover = fullUrl(item.images?.[0]);
+  const cover = item.images?.[0] || item.photos?.[0];
+  const imageUrl = fullUrl(cover);
 
   return (
     <main className="detail-page">
@@ -84,19 +85,31 @@ export default function ProductDetail() {
           {isOwner && <Link to={`/edit-item/${item.id}`} className="link-edit">Editar</Link>}
         </header>
 
-        {cover && (
-          <div className="detail-hero">
-            <img src={cover} alt={item.title} />
-          </div>
-        )}
+        <div className="detail-hero">
+          <img 
+            src={imageUrl || "/placeholder.png"} 
+            alt={item.title} 
+            onError={(e) => {
+              console.log('Erro ao carregar imagem:', e);
+              e.currentTarget.src = "/placeholder.png";
+            }}
+          />
+        </div>
 
         <div className="detail-type">{typeLabel}</div>
         <h1 className="detail-title">{item.title}</h1>
         {item.description && <p className="detail-desc">{item.description}</p>}
 
         <div className="detail-badges">
-          <div className="badge"><FiTag /><span>{item.category || "—"}</span></div>
-          <div className="badge"><FiMapPin /><span>{item.location || "—"}</span></div>
+          <div className="badge-item">
+            <FiTag /> Categoria: {item.category_name || "—"}
+          </div>
+          <div className="badge-item">
+            <FiMapPin /> Localização: {item.city?.name || "—"}
+          </div>
+          <div className="badge-item">
+            <FiPackage /> Condição: {item.status === 'new' ? 'Novo' : 'Usado'}
+          </div>
           {item.type === "Sell" && (
             <div className="badge"><FiTag /><span>{item.price ? `R$ ${item.price}` : "Preço a combinar"}</span></div>
           )}
