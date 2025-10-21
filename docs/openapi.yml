@@ -14,10 +14,10 @@ info:
     ```
     
     ## Fluxo de Autenticação
-    1. Registre um usuário em `/api/users/register/`
-    2. Faça login em `/api/users/login/` para obter tokens
+    1. Registre um usuário em `/users/register/`
+    2. Faça login em `/users/login/` para obter tokens
     3. Use o access_token para acessar endpoints protegidos
-    4. Renove o token usando `/api/token/refresh/` quando expirar
+    4. Renove o token usando `/token/refresh/` quando expirar
     
   version: "1.0.0"
   contact:
@@ -34,7 +34,7 @@ servers:
     description: Servidor de produção
 
 paths:
-  /api/users/register/:
+  /users/register/:
     post:
       tags:
         - Autenticação
@@ -109,7 +109,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /api/users/login/:
+  /users/login/:
     post:
       tags:
         - Autenticação
@@ -157,7 +157,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /api/token/refresh/:
+  /token/refresh/:
     post:
       tags:
         - Autenticação
@@ -195,7 +195,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /api/items/:
+  /items/create:
     post:
       tags:
         - Itens
@@ -263,7 +263,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /api/items/{id}/:
+  /items/{id}/:
     get:
       tags:
         - Itens
@@ -300,7 +300,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /api/item/update/{id}/:
+  /item/update/{id}/:
     put:
       tags:
         - Itens
@@ -459,7 +459,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
-  /api/items/delete/{id}/:
+  /items/delete/{id}/:
     delete:
       tags:
         - Itens
