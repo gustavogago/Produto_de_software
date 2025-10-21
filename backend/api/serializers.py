@@ -82,10 +82,28 @@ class UserSerializer(serializers.ModelSerializer):
         return user
     
 class ItemSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    city = CitySerializer(read_only=True)
+    photos = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()  # Para compatibilidade com o frontend
+    type = serializers.CharField(default='Trade')  # Sell, Trade, ou Donation
+    
     class Meta:
         model = Item
-        fields = '__all__'
+        fields = ['id', 'title', 'description', 'category', 'category_name', 
+                 'city', 'status', 'listing_state', 'created_at', 
+                 'updated_at', 'photos', 'images', 'type']
         read_only_fields = ['user', 'id', 'created_at', 'updated_at']
+
+    def get_photos(self, obj):
+        return [photo.url for photo in obj.photos.all()]
+        
+    def get_images(self, obj):
+        # Para manter compatibilidade com o frontend que espera 'images'
+        return self.get_photos(obj)
+
+    def get_photos(self, obj):
+        return [photo.url for photo in obj.photos.all()]
 
     def create(self, validated_data):
         item = Item.objects.create(**validated_data)
