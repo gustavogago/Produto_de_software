@@ -44,6 +44,8 @@ import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import "./styles/global.css";
+
 import ListItem from "./pages/ListItem";
 import ProductDetail from "./pages/ProductDetail";
 import EditItem from "./pages/EditItem"; // <-- Faltava este import!
