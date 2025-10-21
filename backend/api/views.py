@@ -110,6 +110,20 @@ class ListCategoriesView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = [AllowAny]
+    
+class CreateCategoryView(generics.CreateAPIView):
+    """Cria uma nova categoria"""
+    name = "Create Category"
+    http_method_names = ["post"]
+    description = "Endpoint for creating a new category."
+    serializer_class = CategorySerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Category.objects.all()
+    
+    def perform_create(self, serializer):
+        serializer.save()
 
 
 class ListCitiesView(generics.ListAPIView):
