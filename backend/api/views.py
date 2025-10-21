@@ -1,10 +1,15 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import generics
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserCreateSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from .models import Item
+from .models import Item, UserProfile, Notification
 from .serializers import ItemSerializer
+from rest_framework import generics, permissions,status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .serializers import UserProfileSerializer
+from django.http import Http404
 
 
 class CreateUserView(generics.CreateAPIView):
@@ -64,3 +69,28 @@ class ReadItemView(generics.RetrieveAPIView):
     def get_queryset(self):
         user = self.request.user
         return Item.objects.filter(author=user)
+    
+class UserProfileView(generics.RetrieveAPIView):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        try:
+            profile = UserProfile.objects.get(user=request.user)
+        except UserProfile.DoesNotExist:
+            return Response({"error": "Perfil não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = UserProfileSerializer(profile)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class UserProfileUpdateView(generics.RetrieveUpdateAPIView):
+    name = "User and Profile Update"
+    http_method_names = ["get", "put", "patch"]
+    serializer_class = UserSerializer 
+    permission_classes = [IsAuthenticated]
+    def get_object(self):
+        return self.request.user
+    
+class CreateUserView(generics.CreateAPIView):
+    serializer_class = UserCreateSerializer 
+    permission_classes = [AllowAny]
