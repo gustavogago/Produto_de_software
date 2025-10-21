@@ -2,6 +2,7 @@ import { defineConfig } from 'cypress';
 import { devServer } from '@cypress/vite-dev-server';
 
 export default defineConfig({
+  projectId: 'uynhjj',
   e2e: {
     baseUrl: 'http://localhost:3000', // ajuste para sua app (ex.: 5173/8000)
     specPattern: 'cypress/e2e/**/*.cy.{js,ts,jsx,tsx}',
