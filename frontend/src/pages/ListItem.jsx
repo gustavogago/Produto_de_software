@@ -168,7 +168,7 @@ export default function ListItem() {
             ←
           </button>
           <h1 id="li-title" style={{ margin: 0, fontSize: 24, color: "var(--text-dark)" }}>
-            List Item
+            Cadastrar novo produto
           </h1>
         </header>
 

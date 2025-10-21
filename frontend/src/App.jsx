@@ -43,12 +43,13 @@ import Register from "./pages/Register";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Profile from "./pages/Profile";
 
 import "./styles/global.css";
 
 import ListItem from "./pages/ListItem";
 import ProductDetail from "./pages/ProductDetail";
-import EditItem from "./pages/EditItem"; // <-- Faltava este import!
+import EditItem from "./pages/EditItem";
 
 function Logout() {
   localStorage.clear();
@@ -99,6 +100,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <EditItem />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           }
         />
