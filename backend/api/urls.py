@@ -11,10 +11,11 @@ from .views import (
 urlpatterns = [
     path("users/profile/", UserProfileView.as_view(), name="user-profile"),
     path("users/profile/update/", UserProfileUpdateView.as_view(), name="user-update"),
-    path("items/create/", views.CreateItemView.as_view(), name="note-list"),
-    path("items/delete/<int:pk>/", views.DeleteItemView.as_view(), name="delete-note"),
-    path("items/update/<int:pk>/", views.UpdateItemView.as_view(), name="update-note"),
-    path("items/<int:pk>/", views.ReadItemView.as_view(), name="note-detail"),
+    path("items/", views.ReadItemsView.as_view(), name="get-items"),
+    path("items/create/", views.CreateItemView.as_view(), name="items-create"),
+    path("items/<uuid:pk>/", views.ReadItemView.as_view(), name="item-detail"),
+    path("items/update/<uuid:pk>/", views.UpdateItemView.as_view(), name="update-item"),
+    path("items/delete/<uuid:pk>/", views.DeleteItemView.as_view(), name="delete-item"),
     path("categories/", ListCategoriesView.as_view(), name="list-categories"),
     path("cities/", ListCitiesView.as_view(), name="list-cities"),
 ]
