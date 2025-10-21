@@ -9,13 +9,24 @@
   --spacing-unit: 1rem;
 }
 
-/* Reset e centralização full-width */
-html, body {
-  height: 100%;
+/* Reset básico */
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
   margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+}
+
+html {
   background-color: var(--main-bg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+}
+
+body {
   font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
