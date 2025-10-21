@@ -1,12 +1,9 @@
 from django.contrib.auth.models import User
-from django.http import Http404
-from django.shortcuts import render
 from rest_framework import generics, permissions, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
-from .models import Category, City, Item, Notification, UserProfile
+from .models import Category, City, Item, UserProfile
 from .serializers import (
     CategorySerializer,
     CitySerializer,
@@ -66,11 +63,21 @@ class ReadItemView(generics.RetrieveAPIView):
     http_method_names = ["get"]
     description = "Endpoint for reading an item."
     serializer_class = ItemSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         user = self.request.user
         return Item.objects.filter(user=user)
+    
+class ReadItemsView(generics.ListAPIView):
+    name = "Read Items"
+    http_method_names = ["get"]
+    description = "Endpoint for reading all items."
+    serializer_class = ItemSerializer
+    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        return Item.objects.all()
     
 class UserProfileView(generics.RetrieveAPIView):
     serializer_class = UserSerializer
