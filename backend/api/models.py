@@ -48,9 +48,16 @@ class Item(models.Model):
 class ItemPhoto(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="photos")
-    url = models.TextField()
+    image = models.ImageField(upload_to='items/%Y/%m/%d/', null=True, blank=True)
+    url = models.TextField(null=True, blank=True)  # Mantém para compatibilidade com URLs externas
     position = models.IntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    def get_url(self):
+        """Retorna a URL da imagem (local ou externa)"""
+        if self.image:
+            return self.image.url
+        return self.url or ''
 
 
 class UserProfile(models.Model):
