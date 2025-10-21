@@ -1,20 +1,40 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api";
 
 export default function ListItem() {
   const navigate = useNavigate();
 
+  // Estados para os campos do formulário
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [category, setCategory] = useState("");
-  const [type, setType] = useState("sell");           // "sell" | "donation" | "trade"
-  const [condition, setCondition] = useState("new");  // "new" | "used-good" | "needs-repair"
-  const [location, setLocation] = useState("");
-  const [price, setPrice] = useState("");
-  const [files, setFiles] = useState([]);
+  const [categories, setCategories] = useState([]);
+  
+  // NOTA: Estes campos são coletados no frontend mas não enviados ao backend atual
+  // O modelo Item do backend não tem campos para: type, location, price, photos
+  // Eles precisariam ser adicionados ao modelo ou tratados em modelos relacionados
+  const [type, setType] = useState("sell");           // "sell" | "donation" | "trade" (não usado no backend)
+  const [condition, setCondition] = useState("new");  // "new" | "used-good" | "needs-repair" (mapeado para status)
+  const [location, setLocation] = useState("");       // (não usado no backend - usar city)
+  const [price, setPrice] = useState("");             // (não usado no backend - modelo não tem campo price)
+  const [files, setFiles] = useState([]);             // (não usado no backend - modelo ItemPhoto existe mas não está implementado)
+  
   const [submitting, setSubmitting] = useState(false);
   const dropRef = useRef(null);
+
+  // Carregar categorias ao montar
+  useEffect(() => {
+    fetch("http://localhost:8000/categories/")
+      .then(res => res.json())
+      .then(data => {
+        console.log("Categorias carregadas:", data);
+        setCategories(data);
+      })
+      .catch(err => {
+        console.error("Erro ao carregar categorias:", err);
+      });
+  }, []);
 
   function onFilesSelected(list) {
     if (!list) return;
@@ -54,35 +74,52 @@ export default function ListItem() {
 
     try {
       setSubmitting(true);
-
-      const fd = new FormData();
-      fd.append("title", title);
-      fd.append("description", desc);
-      fd.append("category", category);
-      fd.append("type", mapType(type));
-      fd.append("location", location);
-      fd.append("condition", mapCondition(condition));
-      if (type === "sell") fd.append("price", String(price));
-
-      // ajuste o nome do campo conforme o backend: "images", "photos", etc.
-      files.forEach((f) => fd.append("images", f));
-
-      const { data } = await api.post("api/users/items/", fd, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      alert("Item publicado!");
-      const slugOrId = data.slug || data.id;
-      navigate(`/product/${slugOrId}`);
-    } catch (e) {
-      console.error("create item error:", e);
-      const status = e?.response?.status;
-      const data = e?.response?.data;
-      alert(
-        "Erro ao publicar item.\n" +
-        (status ? `Status: ${status}\n` : "") +
-        (data ? `Detalhes: ${JSON.stringify(data, null, 2)}` : e.message)
+      
+      // Buscar ID da categoria pelo nome
+      const categoryObj = categories.find(c => 
+        c.name.toLowerCase() === category.toLowerCase()
       );
+
+      if (!categoryObj) {
+        alert("Categoria inválida. Escolha: " + categories.map(c => c.name).join(", "));
+        setSubmitting(false);
+        return;
+      }
+
+      const mapConditionToStatus = (frontendCondition) => {
+        if (frontendCondition === "new") return "new";
+        return "used";
+      };
+
+      const payload = {
+        title: title,
+        description: desc,
+        category: categoryObj.id,
+        status: mapConditionToStatus(condition),
+        listing_state: "active"
+      };
+
+      const { data } = await api.post("items/create/", payload);
+
+      alert("Item publicado com sucesso!");
+      console.log("Item criado:", data);
+      
+      const itemId = data.id;
+      navigate(`/product/${itemId}`);
+    } catch (e) {
+      console.error("Erro ao criar item:", e);
+      const status = e?.response?.status;
+      const errorData = e?.response?.data;
+      
+      let errorMsg = "Erro ao publicar item.\n";
+      if (status) errorMsg += `Status: ${status}\n`;
+      if (errorData) {
+        errorMsg += `Detalhes: ${JSON.stringify(errorData, null, 2)}`;
+      } else {
+        errorMsg += e.message;
+      }
+      
+      alert(errorMsg);
     } finally {
       setSubmitting(false);
     }
@@ -227,8 +264,14 @@ export default function ListItem() {
                 placeholder="Ex: Electronics"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
+                list="categories-list"
                 style={inputStyle}
               />
+              <datalist id="categories-list">
+                {categories.map(cat => (
+                  <option key={cat.id} value={cat.name} />
+                ))}
+              </datalist>
             </div>
             <div>
               <label style={labelStyle}>Location</label>
