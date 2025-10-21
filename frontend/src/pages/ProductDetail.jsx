@@ -3,11 +3,9 @@ import { useEffect, useMemo, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import api from "../api";
 import { ACCESS_TOKEN } from "../constants";
-import { FiArrowLeft, FiStar, FiShield, FiPackage, FiMapPin, FiTag, FiMessageCircle } from "react-icons/fi";
+import { FiStar, FiShield, FiPackage, FiMapPin, FiTag, FiMessageCircle } from "react-icons/fi";
 import "../styles/Detail.css";
-
-const BASE = "http://localhost:8000";
-const fullUrl = (u) => (!u ? "" : u.startsWith("http") ? u : u.startsWith("/") ? `${BASE}${u}` : `${BASE}/${u}`);
+import { BackHeader, BottomNav, fullUrl, LoadingContainer } from "./Base";
 
 export default function ProductDetail() {
   const { slug } = useParams(); // pode ser slug ou id
@@ -51,7 +49,9 @@ export default function ProductDetail() {
   if (loading) {
     return (
       <main className="detail-page">
-        <div className="detail-card">Carregando...</div>
+        <div className="detail-card">
+          <LoadingContainer />
+        </div>
       </main>
     );
   }
@@ -78,12 +78,9 @@ export default function ProductDetail() {
   return (
     <main className="detail-page">
       <article className="detail-card">
-        <header className="detail-topbar">
-          <button className="icon-btn" aria-label="Voltar" onClick={() => navigate(-1)}>
-            <FiArrowLeft size={18} />
-          </button>
-          {isOwner && <Link to={`/edit-item/${item.id}`} className="link-edit">Editar</Link>}
-        </header>
+        <BackHeader 
+          rightElement={isOwner && <Link to={`/edit-item/${item.id}`} className="link-edit">Editar</Link>}
+        />
 
         <div className="detail-hero">
           <img 
@@ -137,12 +134,7 @@ export default function ProductDetail() {
         </footer>
       </article>
 
-      <nav className="detail-bottom-nav">
-        <Link to="/">Home</Link>
-        <Link to="/search">Search</Link>
-        <Link to="/favorites">Favorites</Link>
-        <Link to="/profile">Profile</Link>
-      </nav>
+      <BottomNav />
     </main>
   );
 }

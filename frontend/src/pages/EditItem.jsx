@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../api";
+import { BackHeader, LoadingContainer, inputStyle, labelStyle, buttonStyle, primaryButtonStyle } from "./Base";
 
 export default function EditItem() {
   const { id } = useParams();
@@ -65,7 +66,7 @@ export default function EditItem() {
   }
 
   if (loading) {
-    return <div style={{ padding: 24 }}>Carregando...</div>;
+    return <LoadingContainer />;
   }
 
   return (
@@ -73,10 +74,7 @@ export default function EditItem() {
       <form onSubmit={onSubmit} style={{
         width:"100%", maxWidth:960, background:"#fff", borderRadius:16, padding:24, boxShadow:"0 8px 24px rgba(0,0,0,.06)"
       }}>
-        <header style={{ display:"flex", alignItems:"center", gap:8, marginBottom:12 }}>
-          <button type="button" onClick={() => navigate(-1)} style={backBtn}>←</button>
-          <h1 style={{ margin:0 }}>Editar: {form.title}</h1>
-        </header>
+        <BackHeader title={`Editar: ${form.title}`} />
 
         <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12 }}>
           <div style={{ gridColumn:"1 / -1" }}>
@@ -86,17 +84,17 @@ export default function EditItem() {
             <textarea name="description" rows={4} placeholder="Descrição" value={form.description} onChange={handleChange} style={{ ...input, resize:"vertical" }}/>
           </div>
           <div>
-            <label style={label}>Categoria</label>
-            <input name="category" placeholder="Ex: Clothes" value={form.category} onChange={handleChange} style={input}/>
+            <label style={labelStyle}>Categoria</label>
+            <input name="category" placeholder="Ex: Clothes" value={form.category} onChange={handleChange} style={inputStyle}/>
           </div>
           <div>
-            <label style={label}>Localização</label>
-            <input name="location" placeholder="Cidade, Estado" value={form.location} onChange={handleChange} style={input}/>
+            <label style={labelStyle}>Localização</label>
+            <input name="location" placeholder="Cidade, Estado" value={form.location} onChange={handleChange} style={inputStyle}/>
           </div>
         </div>
 
         <div style={{ marginTop: 12 }}>
-          <label style={label}>Tipo</label>
+          <label style={labelStyle}>Tipo</label>
           <div style={{ display:"flex", gap:8 }}>
             {["Sell","Donation","Trade"].map(t => (
               <button type="button" key={t}
@@ -110,16 +108,16 @@ export default function EditItem() {
 
         {form.type === "Sell" && (
           <div style={{ marginTop: 12, maxWidth: 280 }}>
-            <label style={label}>Preço</label>
+            <label style={labelStyle}>Preço</label>
             <div style={{ display:"flex", gap:8, alignItems:"center" }}>
-              <span style={{ ...input, width:56, textAlign:"center" }}>R$</span>
-              <input name="price" placeholder="0,00" value={form.price} onChange={handleChange} style={{ ...input, flex:1 }}/>
+              <span style={{ ...inputStyle, width:56, textAlign:"center" }}>R$</span>
+              <input name="price" placeholder="0,00" value={form.price} onChange={handleChange} style={{ ...inputStyle, flex:1 }}/>
             </div>
           </div>
         )}
 
         <div style={{ marginTop: 12 }}>
-          <label style={label}>Condição</label>
+          <label style={labelStyle}>Condição</label>
           <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
             {["New","Used - Good Condition","Needs Repair"].map(c => (
               <button type="button" key={c}
@@ -133,7 +131,7 @@ export default function EditItem() {
 
         <footer style={{ marginTop: 20 }}>
           <button type="submit" disabled={saving}
-            style={{ ...btn, background:"#28a745", color:"#fff", border:"none", opacity: saving ? .7 : 1 }}>
+            style={{ ...primaryButtonStyle, opacity: saving ? .7 : 1 }}>
             {saving ? "Salvando..." : "Salvar alterações"}
           </button>
         </footer>
@@ -142,8 +140,5 @@ export default function EditItem() {
   );
 }
 
-const input = { width:"100%", padding:"12px 14px", borderRadius:12, border:"1px solid #ddd", background:"#fff", color:"#333", outline:"none" };
-const label = { display:"block", fontSize:12, color:"#777", marginBottom:6 };
+// Removendo estilos duplicados - agora vêm de Base.jsx
 const chip = { padding:"8px 12px", borderRadius:999, border:"1px solid #ddd", cursor:"pointer" };
-const btn = { border:"1px solid #ddd", background:"#fff", padding:"10px 14px", borderRadius:12, cursor:"pointer", color:"#333" };
-const backBtn = { ...btn, padding:"6px 10px" };

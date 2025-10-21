@@ -1,17 +1,8 @@
 import "../styles/Home.css";
-import { FiSearch, FiHeart, FiUser, FiHome, FiShoppingCart } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../api";
-
-const BASE = "http://localhost:8000"; // para completar imagem relativa
-
-function fullUrl(u) {
-  if (!u) return "";
-  if (u.startsWith("http")) return u;
-  if (u.startsWith("/")) return `${BASE}${u}`;
-  return `${BASE}/${u}`;
-}
+import { MainHeader, SearchBar, BottomNav, fullUrl, LoadingContainer, EmptyState } from "./Base";
 
 export default function Home() {
   const [items, setItems] = useState([]);
@@ -35,20 +26,8 @@ export default function Home() {
 
   return (
     <div className="home">
-      <header className="home-header">
-        <h1 className="logo">Give.me</h1>
-        <div className="header-actions">
-          <Link to="/create-item" className="add-btn" aria-label="Cadastrar produto">
-            <span className="plus-icon">+</span>
-          </Link>
-          <FiShoppingCart className="icon" size={22} />
-        </div>
-      </header>
-
-      <div className="search-container">
-        <FiSearch className="search-icon" size={18} />
-        <input type="text" placeholder="What are you looking for?" />
-      </div>
+      <MainHeader />
+      <SearchBar />
 
       <section className="highlight">
         <img
@@ -75,8 +54,8 @@ export default function Home() {
       </section>
 
       <section className="products">
-        {loading && <div>Loading...</div>}
-        {!loading && items.length === 0 && <div>Sem anúncios ainda.</div>}
+        {loading && <LoadingContainer />}
+        {!loading && items.length === 0 && <EmptyState message="Sem anúncios ainda." />}
 
         {!loading &&
           items.map((it) => {
@@ -94,12 +73,7 @@ export default function Home() {
           })}
       </section>
 
-      <nav className="bottom-nav">
-        <Link to="/" className="active"><FiHome size={20} /><span>Home</span></Link>
-        <Link to="/search"><FiSearch size={20} /><span>Search</span></Link>
-        <Link to="/favorites"><FiHeart size={20} /><span>Favorites</span></Link>
-        <Link to="/profile"><FiUser size={20} /><span>Profile</span></Link>
-      </nav>
+      <BottomNav activePage="home" />
     </div>
   );
 }
