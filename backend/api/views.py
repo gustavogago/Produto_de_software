@@ -1,12 +1,14 @@
 from django.contrib.auth.models import User
 from rest_framework import generics, permissions, status
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from .models import Category, City, Item, UserProfile
+from .models import Category, City, Item, ItemPhoto, UserProfile
 from .serializers import (
     CategorySerializer,
     CitySerializer,
+    ItemPhotoSerializer,
     ItemSerializer,
     UserCreateSerializer,
     UserProfileSerializer,
@@ -34,7 +36,15 @@ class CreateItemView(generics.CreateAPIView):
         return Item.objects.filter(user=user)
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        # Captura múltiplas imagens do request
+        photos = self.request.FILES.getlist('photos')
+        try:
+            serializer.save(user=self.request.user, uploaded_photos=photos)
+        except Exception as e:
+            import traceback
+            print(f"Erro ao criar item: {str(e)}")
+            print(traceback.format_exc())
+            raise
     
 class DeleteItemView(generics.DestroyAPIView):
     name = "Delete Item"
@@ -131,3 +141,68 @@ class ListCitiesView(generics.ListAPIView):
     queryset = City.objects.all()
     serializer_class = CitySerializer
     permission_classes = [AllowAny]
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def upload_item_photos(request, item_id):
+    try:
+        item = Item.objects.get(id=item_id, user=request.user)
+    except Item.DoesNotExist:
+        return Response(
+            {"error": "Item não encontrado ou você não tem permissão."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+    
+    photos = request.FILES.getlist('photos')
+    
+    if not photos:
+        return Response(
+            {"error": "Nenhuma foto foi enviada."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    current_count = item.photos.count()
+    max_photos = 6
+    
+    if current_count >= max_photos:
+        return Response(
+            {"error": f"Este item já tem o máximo de {max_photos} fotos."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    available_slots = max_photos - current_count
+    photos_to_upload = photos[:available_slots]
+    
+    created_photos = []
+    for index, photo in enumerate(photos_to_upload, start=current_count + 1):
+        item_photo = ItemPhoto.objects.create(
+            item=item,
+            image=photo,
+            position=index
+        )
+        created_photos.append(item_photo)
+    
+    serializer = ItemPhotoSerializer(created_photos, many=True)
+    
+    return Response({
+        "message": f"{len(created_photos)} foto(s) adicionada(s) com sucesso.",
+        "photos": serializer.data
+    }, status=status.HTTP_201_CREATED)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_item_photo(request, photo_id):
+    try:
+        photo = ItemPhoto.objects.get(id=photo_id, item__user=request.user)
+        photo.delete()
+        return Response(
+            {"message": "Foto deletada com sucesso."},
+            status=status.HTTP_204_NO_CONTENT
+        )
+    except ItemPhoto.DoesNotExist:
+        return Response(
+            {"error": "Foto não encontrada ou você não tem permissão."},
+            status=status.HTTP_404_NOT_FOUND
+        )

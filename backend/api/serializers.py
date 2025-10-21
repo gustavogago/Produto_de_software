@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from .models import Category, City, Item, Notification, UserProfile
+from .models import Category, City, Item, ItemPhoto, Notification, UserProfile
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -15,6 +15,18 @@ class CitySerializer(serializers.ModelSerializer):
     class Meta:
         model = City
         fields = ['id', 'name', 'state']
+
+
+class ItemPhotoSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = ItemPhoto
+        fields = ['id', 'image', 'url', 'position', 'created_at']
+        read_only_fields = ['id', 'url', 'created_at']
+    
+    def get_url(self, obj):
+        return obj.get_url()
 
 
 class NotificationSerializer(serializers.ModelSerializer):
@@ -84,29 +96,57 @@ class UserSerializer(serializers.ModelSerializer):
 class ItemSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
     city = CitySerializer(read_only=True)
+    city_id = serializers.UUIDField(write_only=True, required=False, allow_null=True)
     photos = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()  # Para compatibilidade com o frontend
-    type = serializers.CharField(default='Trade')  # Sell, Trade, ou Donation
+    type = serializers.CharField(write_only=True, required=False, default='Trade')  # Sell, Trade, ou Donation
+    uploaded_photos = serializers.ListField(
+        child=serializers.ImageField(),
+        write_only=True,
+        required=False
+    )
     
     class Meta:
         model = Item
         fields = ['id', 'title', 'description', 'category', 'category_name', 
-                 'city', 'status', 'listing_state', 'created_at', 
-                 'updated_at', 'photos', 'images', 'type']
-        read_only_fields = ['user', 'id', 'created_at', 'updated_at']
+                 'city', 'city_id', 'status', 'listing_state', 'created_at', 
+                 'updated_at', 'photos', 'images', 'type', 'uploaded_photos']
+        read_only_fields = ['user', 'id', 'created_at', 'updated_at', 'city']
 
     def get_photos(self, obj):
-        return [photo.url for photo in obj.photos.all()]
+        return [photo.get_url() for photo in obj.photos.all().order_by('position')]
         
     def get_images(self, obj):
         # Para manter compatibilidade com o frontend que espera 'images'
         return self.get_photos(obj)
 
-    def get_photos(self, obj):
-        return [photo.url for photo in obj.photos.all()]
-
     def create(self, validated_data):
+        # Remover campos que não pertencem ao modelo Item
+        uploaded_photos = validated_data.pop('uploaded_photos', [])
+        validated_data.pop('type', None)  # Remove 'type' pois não está no modelo
+        city_id = validated_data.pop('city_id', None)
+        
+        # Se city_id foi fornecido, buscar o objeto City
+        if city_id:
+            try:
+                from .models import City
+                validated_data['city'] = City.objects.get(id=city_id)
+            except City.DoesNotExist:
+                validated_data['city'] = None
+        else:
+            # Se não tem city_id, remover city do validated_data (pode vir como string do frontend)
+            validated_data.pop('city', None)
+        
         item = Item.objects.create(**validated_data)
+        
+        # Criar ItemPhoto para cada imagem enviada
+        for index, photo in enumerate(uploaded_photos, start=1):
+            ItemPhoto.objects.create(
+                item=item,
+                image=photo,
+                position=index
+            )
+        
         return item
 
 
