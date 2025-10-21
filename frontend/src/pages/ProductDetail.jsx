@@ -30,15 +30,11 @@ export default function ProductDetail() {
     let mounted = true;
     (async () => {
       try {
-        let res;
-        try {
-          res = await api.get(`/items/by-slug/${slug}/`);
-        } catch {
-          res = await api.get(`/items/${slug}/`);
-        }
+        const res = await api.get(`/items/${slug}/`);
         if (mounted) setItem(res.data);
       } catch (e) {
-        console.error("detail fetch", e);
+        console.error("Erro ao buscar item:", e);
+        console.error("Detalhes:", e.response?.data);
       } finally {
         if (mounted) setLoading(false);
       }
