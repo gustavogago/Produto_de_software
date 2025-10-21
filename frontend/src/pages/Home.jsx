@@ -118,6 +118,10 @@ export default function Home() {
                   alt={it.title || "Item"}
                   onError={(e) => (e.currentTarget.src = "/placeholder.png")}
                 />
+                <div className="product-info">
+                  <h3 className="product-title">{it.title || "Sem título"}</h3>
+                  <p className="product-condition">{it.status || "Condição não especificada"}</p>
+                </div>
               </Link>
             );
           })}
