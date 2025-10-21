@@ -16,6 +16,8 @@ function fullUrl(u) {
 export default function Home() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   useEffect(() => {
     let mounted = true;
@@ -32,6 +34,24 @@ export default function Home() {
     })();
     return () => (mounted = false);
   }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const { data } = await api.get("/categories/");
+        const list = Array.isArray(data) ? data : (data?.results || []);
+        if (mounted) setCategories(list);
+      } catch (e) {
+        console.error("categories fetch", e);
+      }
+    })();
+    return () => (mounted = false);
+  }, []);
+
+  const filteredItems = selectedCategory
+    ? items.filter((item) => item.category === selectedCategory)
+    : items;
 
   return (
     <div className="home">
@@ -61,20 +81,30 @@ export default function Home() {
       <section className="categories">
         <h2>Categories</h2>
         <div className="chips">
-          <button className="chip active">All</button>
-          <button className="chip">Smartphones</button>
-          <button className="chip">Laptops</button>
-          <button className="chip">Clothes</button>
-          <button className="chip">Accessories</button>
+          <button
+            className={`chip ${selectedCategory === null ? "active" : ""}`}
+            onClick={() => setSelectedCategory(null)}
+          >
+            All
+          </button>
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              className={`chip ${selectedCategory === cat.id ? "active" : ""}`}
+              onClick={() => setSelectedCategory(cat.id)}
+            >
+              {cat.name}
+            </button>
+          ))}
         </div>
       </section>
 
       <section className="products">
         {loading && <div>Loading...</div>}
-        {!loading && items.length === 0 && <div>Sem anúncios ainda.</div>}
+        {!loading && filteredItems.length === 0 && <div>Sem anúncios ainda.</div>}
 
         {!loading &&
-          items.map((it) => {
+          filteredItems.map((it) => {
             const cover = fullUrl(it.images?.[0]);
             const slugOrId = it.slug || it.id;
             return (
