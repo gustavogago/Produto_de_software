@@ -3,6 +3,8 @@ from rest_framework import serializers
 from .models import Item, UserProfile, Notification 
 from rest_framework.validators import UniqueValidator
 
+from .models import Item, Notification, UserProfile
+
 
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -72,6 +74,7 @@ class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         fields = '__all__'
+        read_only_fields = ['user', 'id', 'created_at', 'updated_at']
 
     def create(self, validated_data):
         item = Item.objects.create(**validated_data)
