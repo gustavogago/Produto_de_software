@@ -1,8 +1,9 @@
 import "../styles/Home.css";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { Box, Stack, Chip, Typography } from "@mui/material";
 import api from "../api";
-import { MainHeader, SearchBar, BottomNav, fullUrl, LoadingContainer, EmptyState } from "./Base";
+import { MainHeader, SearchBar, BottomNav, TopNav, fullUrl, LoadingContainer, EmptyState } from "./Base";
 
 export default function Home() {
   const [items, setItems] = useState([]);
@@ -10,6 +11,7 @@ export default function Home() {
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -42,26 +44,48 @@ export default function Home() {
     return () => (mounted = false);
   }, []);
 
-  const handleCategoryFilter = (categoryName) => {
-    setSelectedCategory(categoryName);
-    
-    if (categoryName === "All") {
-      setItems(allItems);
-    } else {
-      const filtered = allItems.filter(item => {
-        // O backend retorna category_name como string
+  const filterItems = (categoryName, query) => {
+    let filtered = allItems;
+
+    // Filtrar por categoria
+    if (categoryName !== "All") {
+      filtered = filtered.filter(item => {
         if (item.category_name) {
           return item.category_name === categoryName;
         }
-        // Fallback: comparar por nome da categoria se vier como objeto
         if (typeof item.category === 'object' && item.category?.name) {
           return item.category.name === categoryName;
         }
-        // Caso a categoria seja apenas uma string
         return item.category === categoryName;
       });
-      setItems(filtered);
     }
+
+    // Filtrar por busca
+    if (query && query.trim()) {
+      const lowerQuery = query.toLowerCase().trim();
+      filtered = filtered.filter(item => {
+        const title = (item.title || "").toLowerCase();
+        const description = (item.description || "").toLowerCase();
+        const status = (item.status || "").toLowerCase();
+        return title.includes(lowerQuery) || 
+               description.includes(lowerQuery) || 
+               status.includes(lowerQuery);
+      });
+    }
+
+    return filtered;
+  };
+
+  const handleCategoryFilter = (categoryName) => {
+    setSelectedCategory(categoryName);
+    const filtered = filterItems(categoryName, searchQuery);
+    setItems(filtered);
+  };
+
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    const filtered = filterItems(selectedCategory, query);
+    setItems(filtered);
   };
 
   return (
@@ -82,26 +106,46 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="categories">
-        <h2>Categories</h2>
-        <div className="chips">
-          <button 
-            className={`chip ${selectedCategory === "All" ? "active" : ""}`}
+      <Box component="section" className="categories" sx={{ my: 3 }}>
+        <Typography variant="h6" sx={{ mb: 1 }}>Categories</Typography>
+
+        <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ gap: 1 }}>
+          {/* All chip */}
+          <Chip
+            label="All"
+            clickable
             onClick={() => handleCategoryFilter("All")}
-          >
-            All
-          </button>
-          {categories.map((cat) => (
-            <button 
-              key={cat.id}
-              className={`chip ${selectedCategory === cat.name ? "active" : ""}`}
-              onClick={() => handleCategoryFilter(cat.name)}
-            >
-              {cat.name}
-            </button>
-          ))}
-        </div>
-      </section>
+            variant={selectedCategory === "All" ? "filled" : "outlined"}
+            color={selectedCategory === "All" ? "success" : "default"}
+            size="medium"
+            sx={{ fontWeight: selectedCategory === "All" ? 600 : 500 }}
+            aria-pressed={selectedCategory === "All"}
+          />
+
+          {/* Category chips from API */}
+          {categories && categories.length > 0 ? (
+            categories.map((cat) => {
+              const name = typeof cat === 'string' ? cat : (cat.name || cat.title || String(cat.id));
+              const key = typeof cat === 'object' ? (cat.id ?? name) : name;
+              return (
+                <Chip
+                  key={key}
+                  label={name}
+                  clickable
+                  onClick={() => handleCategoryFilter(name)}
+                  variant={selectedCategory === name ? "filled" : "outlined"}
+                  color={selectedCategory === name ? "success" : "default"}
+                  size="medium"
+                  sx={{ fontWeight: selectedCategory === name ? 600 : 500 }}
+                  aria-pressed={selectedCategory === name}
+                />
+              );
+            })
+          ) : (
+            <Typography variant="body2" color="text.secondary">No categories</Typography>
+          )}
+        </Stack>
+      </Box>
 
       <section className="products">
         {loading && <LoadingContainer />}
