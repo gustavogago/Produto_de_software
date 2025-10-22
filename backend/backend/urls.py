@@ -5,7 +5,6 @@ from django.contrib import admin
 from django.urls import include, path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-#Faz a configuração das rotas a partir das URLS
 urlpatterns = [
     path("admin/", admin.site.urls),
     #path("api/health/", health_check, name='health_check'),  # Adicione esta linha
@@ -17,6 +16,5 @@ urlpatterns = [
     path("", include("api.urls")),  
 ]
 
-# Serve media files em desenvolvimento
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
