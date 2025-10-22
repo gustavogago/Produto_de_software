@@ -2,15 +2,9 @@ from api.views import CreateUserView
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-<<<<<<< HEAD
-from django.urls import path, include
-from api.views import CreateUserView
-=======
 from django.urls import include, path
->>>>>>> 1aa3594 (refactor: Padronizando as URLs)
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-#Faz a configuração das rotas a partir das URLS
 urlpatterns = [
     path("admin/", admin.site.urls),
     #path("api/health/", health_check, name='health_check'),  # Adicione esta linha
@@ -22,6 +16,5 @@ urlpatterns = [
     path("", include("api.urls")),  
 ]
 
-# Serve media files em desenvolvimento
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
