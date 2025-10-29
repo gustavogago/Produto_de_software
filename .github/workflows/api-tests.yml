@@ -1,4 +1,3 @@
-# .github/workflows/ci.yml
 name: Frontend E2E (Cypress)
 
 on:
@@ -22,4 +21,36 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      
+      - name: Instalar dependências
+        working-directory: frontend
+        run: npm install
+
+  tests:
+    runs-on: ubuntu-latest
+    needs: e2e
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Ambiente
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Instalar dependências
+        working-directory: frontend
+        run: npm install
+
+      - name: Rodar testes E2E com Cypress
+        working-directory: frontend
+        run: npx start-server-and-test "npm run dev" http://localhost:3000 "cypress run --browser chrome"
+
+      - name: Upload relatório de testes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: |
+            frontend/cypress/videos/
+            frontend/cypress/screenshots/
