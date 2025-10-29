@@ -44,7 +44,7 @@ jobs:
 
       - name: Rodar testes E2E com Cypress
         working-directory: frontend
-        run: npx start-server-and-test start http://localhost:3000 "cypress run --browser chrome"
+        run: npx start-server-and-test "npm run start" http://localhost:3000 "cypress run --browser chrome"
 
       - name: Upload relatório de testes
         if: always()
