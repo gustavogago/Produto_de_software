@@ -23,7 +23,7 @@ jobs:
 
       - name: Instalar dependências
         working-directory: frontend
-        run: npm install
+        run: npm install --legacy-peer-deps
 
   tests:
     runs-on: ubuntu-latest
