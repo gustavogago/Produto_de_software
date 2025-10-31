@@ -53,11 +53,19 @@ jobs:
           path: |
             frontend/cypress/videos/
             frontend/cypress/screenshots/
+
+
+
+            
   tests_Back:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
+      - name: Instalar Bibliotecas de Sistema
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libjpeg-dev zlib1g-dev libpq-dev
         
       - name: Configurar Ambiente
         uses: actions/setup-python@v5
