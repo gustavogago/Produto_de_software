@@ -41,6 +41,7 @@ jobs:
       - name: Instalar dependências
         working-directory: frontend
         run: |
+          npm install
           npm ci
           npx cypress install
 
