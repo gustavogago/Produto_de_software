@@ -17,15 +17,14 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
-
-      - name: Instalar dependências
+          
+      - name: Corrigir dependências antigas do Cypress
         working-directory: frontend
         run: |
-            npm install clean-stack --save-dev
-            npm install --legacy-peer-deps
+          npm install clean-stack core-util-is --save-dev
 
   tests:
     runs-on: ubuntu-latest
@@ -38,7 +37,7 @@ jobs:
       - name: Configurar Ambiente
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Instalar dependências
         working-directory: frontend
