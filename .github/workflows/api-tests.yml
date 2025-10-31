@@ -72,7 +72,7 @@ jobs:
 
       - name: Rodar testes pytest
         working-directory: backend
-        run: pytest --junitxml=test-report.xml
+        run: python -m pytest
 
       - name: Upload relatório de testes
         if: always()
