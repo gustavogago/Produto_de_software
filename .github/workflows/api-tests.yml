@@ -40,7 +40,7 @@ jobs:
 
       - name: Instalar dependências
         working-directory: frontend
-        run: npm install || npm ci
+        run: npx cypress install
 
       - name: Rodar testes E2E com Cypress
         working-directory: frontend
