@@ -62,7 +62,7 @@ jobs:
     env:
       DB_NAME: ci_test_db
       DB_USER: ci_user
-      DB_PASSWORD: ci_password
+      DB_PW: ci_password
       DB_HOST: postgres 
       DB_PORT: 5432
       
