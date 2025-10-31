@@ -23,7 +23,7 @@ jobs:
           
       - name: Instalar dependências
         working-directory: frontend
-        run: npm ci
+        run: npx cypress install
 
   tests:
     runs-on: ubuntu-latest
