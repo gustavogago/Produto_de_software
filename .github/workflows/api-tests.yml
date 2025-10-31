@@ -37,10 +37,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-
+  
       - name: Instalar dependências
         working-directory: frontend
-        run: npx cypress install
+        run: |
+          npm ci
+          npx cypress install
 
       - name: Rodar testes E2E com Cypress
         working-directory: frontend
