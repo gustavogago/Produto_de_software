@@ -25,7 +25,7 @@ jobs:
   #       working-directory: frontend
   #       run: npm ci
   
-  tests:
+  tests_front:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout código
@@ -53,3 +53,34 @@ jobs:
           path: |
             frontend/cypress/videos/
             frontend/cypress/screenshots/
+  tests_Back:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Ambiente
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+  
+      - name: Instalar dependências
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Rodar testes pytest
+        working-directory: backend
+        run: pytest --junitxml=test-report.xml
+
+      - name: Upload relatório de testes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-report
+          path: |
+            backend/test-report.xml
+
+
+            
