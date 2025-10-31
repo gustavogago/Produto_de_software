@@ -54,13 +54,10 @@ jobs:
             frontend/cypress/videos/
             frontend/cypress/screenshots/
   tests_Back:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
-        
-      - name: Instalar Dependências Nativas
-        run: sudo apt-get update && sudo apt-get install -y libjpeg-dev zlib1g-dev
         
       - name: Configurar Ambiente
         uses: actions/setup-python@v5
