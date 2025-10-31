@@ -42,7 +42,6 @@ jobs:
         working-directory: frontend
         run: |
           npm ci
-          npx cypress install
 
       - name: Rodar testes E2E com Cypress
         working-directory: frontend
