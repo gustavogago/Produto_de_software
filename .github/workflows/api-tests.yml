@@ -97,4 +97,6 @@ jobs:
           DB_PWD: ci_password 
           DB_HOST: 127.0.0.1
           DB_PORT: 5432 
-        run: python -m pytest
+        run: |
+          sleep 10
+          python -m pytest
