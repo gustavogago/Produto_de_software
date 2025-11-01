@@ -52,27 +52,16 @@ jobs:
           name: test-report
           path: |
             frontend/cypress/videos/
-            frontend/cypress/screenshots/
-
-
-
-            
+            frontend/cypress/screenshots/           
   tests_Back:
     runs-on: ubuntu-latest
-    env:
-      DB_NAME: ci_test_db
-      DB_USER: ci_user
-      DB_PW: ci_password
-      DB_HOST: postgres 
-      DB_PORT: 5432
-      
     services:
-       postgres:
+        postgres:
           image: postgres:15-alpine
           env:
             POSTGRES_DB: ci_test_db
             POSTGRES_USER: ci_user         
-            POSTGRES_PASSWORD: ci_password   
+            POSTGRES_PASSWORD: ci_password      
           ports:
             - 5432:5432
           options: >-
@@ -102,15 +91,10 @@ jobs:
 
       - name: Rodar testes pytest
         working-directory: backend
+        env:
+          DB_NAME:  ci_test_db
+          DB_USER: ci_user      
+          DB_PWD: ci_password 
+          DB_HOST: postgres
+          DB_PORT: 5432 
         run: python -m pytest
-
-      - name: Upload relatório de testes
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-test-report
-          path: |
-            backend/test-report.xml
-
-
-            
