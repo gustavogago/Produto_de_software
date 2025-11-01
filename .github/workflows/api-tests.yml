@@ -52,7 +52,8 @@ jobs:
           name: test-report
           path: |
             frontend/cypress/videos/
-            frontend/cypress/screenshots/           
+            frontend/cypress/screenshots/  
+            
   tests_Back:
     runs-on: ubuntu-latest
     services:
