@@ -43,7 +43,7 @@ jobs:
 
       - name: Rodar testes E2E com Cypress
         working-directory: frontend
-        run: npx start-server-and-test --wait 60 "npm run dev" http://localhost:3000 "cypress run --browser chrome"
+        run: npx start-server-and-test "npm run dev" http://localhost:3000 "cypress run --browser chrome"
 
       - name: Upload relatório de testes
         if: always()
@@ -106,6 +106,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-report
+          name: test-report-back
           path: |
             backend/test-results.xml
