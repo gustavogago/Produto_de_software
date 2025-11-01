@@ -99,7 +99,7 @@ jobs:
           DB_PORT: 5432 
           PGSSLMODE: disable
         run: |
-          python -m pytest --create-db
+          python -m pytest --junitxml=test-results.xml
           
       - name: Upload relatório de testes
         if: always()
