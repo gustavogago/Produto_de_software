@@ -99,5 +99,4 @@ jobs:
           DB_PORT: 5432 
           PGSSLMODE: disable
         run: |
-          sleep 10
-          python -m pytest
+          python -m pytest --create-db
