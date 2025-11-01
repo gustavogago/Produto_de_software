@@ -100,3 +100,11 @@ jobs:
           PGSSLMODE: disable
         run: |
           python -m pytest --create-db
+          
+      - name: Upload relatório de testes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: |
+            backend/test-results.xml
