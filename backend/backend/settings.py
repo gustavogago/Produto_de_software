@@ -120,9 +120,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-if any(arg in sys.argv for arg in ["test", "pytest"]):
+
+
+
+if any("test" in arg or "pytest" in arg for arg in sys.argv):
     try:
-        print("⚙️  Modo de teste detectado → desativando SSL")
+        print("Até quem fim")
+        DATABASES["default"].setdefault("OPTIONS", {})
         DATABASES["default"]["OPTIONS"]["sslmode"] = os.getenv("DB_SSLMODE", "disable")
     except KeyError as e:
         print(e)
