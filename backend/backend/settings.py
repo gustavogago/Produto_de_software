@@ -120,5 +120,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
-if 'test' in sys.argv:
-    DATABASES['default']['OPTIONS'] = {'sslmode': 'disable'}
+if any(arg in sys.argv for arg in ["test", "pytest"]):
+    DATABASES["default"].setdefault("OPTIONS", {})
+    DATABASES["default"]["OPTIONS"]["sslmode"] = "disable"
