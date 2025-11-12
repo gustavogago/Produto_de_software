@@ -100,7 +100,7 @@ jobs:
           DB_PORT: 5432 
           PGSSLMODE: disable
         run: |
-          python -m pytest --cov=backend --cov-fail-uder=34
+          python -m pytest --cov=backend --cov-fail-under=34
           
       - name: Upload relatório de cobertura
         if: always()
