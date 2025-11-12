@@ -121,4 +121,9 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 if any(arg in sys.argv for arg in ["test", "pytest"]):
-    DATABASES["default"]["OPTIONS"]["sslmode"] = os.getenv("DB_SSLMODE", "disable")
+    try:
+        print("⚙️  Modo de teste detectado → desativando SSL")
+        DATABASES["default"]["OPTIONS"]["sslmode"] = os.getenv("DB_SSLMODE", "disable")
+    except KeyError as e:
+        print(e)
+        
