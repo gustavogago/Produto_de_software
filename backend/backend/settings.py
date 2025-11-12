@@ -1,6 +1,7 @@
 import os
 from datetime import timedelta
 from pathlib import Path
+import sys
 
 from dotenv import load_dotenv
 
@@ -118,3 +119,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
+if 'test' in sys.argv:
+    DATABASES['default']['OPTIONS'] = {'sslmode': 'disable'}
