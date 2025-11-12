@@ -100,12 +100,11 @@ jobs:
           DB_PORT: 5432 
           PGSSLMODE: disable
         run: |
-          python -m pytest --junitxml=test-results.xml
+          python -m pytest --cov=backend --cov-fail-uder=34
           
-      - name: Upload relatório de testes
+      - name: Upload relatório de cobertura
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-report-back
-          path: |
-            backend/test-results.xml
+          name: coverage-report
+          path: backend/htmlcov

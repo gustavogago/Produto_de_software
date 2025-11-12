@@ -81,7 +81,6 @@ DATABASES = {
         "HOST": os.getenv("DB_HOST"),
         "PORT": os.getenv("DB_PORT"),
         "OPTIONS": {"sslmode": "require"},
-        #"OPTIONS": {"sslmode": os.getenv("DB_SSLMODE", "disable")} --> Mudar para testar CI
         "CONN_MAX_AGE": 60,
     }
 }
