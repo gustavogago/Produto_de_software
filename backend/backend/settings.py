@@ -123,9 +123,8 @@ CORS_ALLOW_CREDENTIALS = True
 
 
 
-if any("test" in arg or "pytest" in arg for arg in sys.argv):
+if any("pytest" in arg for arg in sys.argv):
     try:
-        print("Até quem fim")
         DATABASES["default"].setdefault("OPTIONS", {})
         DATABASES["default"]["OPTIONS"]["sslmode"] = os.getenv("DB_SSLMODE", "disable")
     except KeyError as e:
