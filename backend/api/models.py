@@ -5,6 +5,9 @@ from django.db import models
 
 
 class Category(models.Model):
+    class Meta:
+        db_table = "category"
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.TextField(unique=True, null=False)
     slug = models.TextField(unique=True, null=False)
@@ -14,6 +17,9 @@ class Category(models.Model):
 
 
 class City(models.Model):
+    class Meta:
+        db_table = "city"
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.TextField(null=False)
     state = models.TextField(null=True, blank=True)
@@ -23,6 +29,8 @@ class City(models.Model):
 
 
 class Item(models.Model):
+    class Meta:
+        db_table = "item"
 
     STATUS_CHOICES = [("new", "Novo"), ("used", "Usado")]
     LISTING_STATE_CHOICES = [("active", "Ativo"), ("inactive", "Inativo")]
@@ -46,6 +54,9 @@ class Item(models.Model):
 
 
 class ItemPhoto(models.Model):
+    class Meta:
+        db_table = "itemphoto"
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name="photos")
     image = models.ImageField(upload_to='items/%Y/%m/%d/', null=True, blank=True)
@@ -61,6 +72,8 @@ class ItemPhoto(models.Model):
 
 
 class UserProfile(models.Model):
+    class Meta:
+        db_table = "userprofile"
     # Ligação 1 para 1 com o User. Se o user for deletado, o perfil também é.
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     photo_url = models.TextField(null=True, blank=True)
@@ -74,6 +87,8 @@ class UserProfile(models.Model):
 
 
 class Notification(models.Model):
+    class Meta:
+        db_table = "notification"
     NOTIFICATION_TYPE = [
         ("profile", "Perfil"),
         ("item", "Item"),

@@ -4,6 +4,16 @@ from rest_framework.validators import UniqueValidator
 
 from .models import Category, City, Item, ItemPhoto, Notification, UserProfile
 
+import logging
+from .supabase_admin import (
+    get_or_create_supabase_user,
+    SupabaseAdminError,
+)
+
+
+logger = logging.getLogger(__name__)
+
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -52,10 +62,36 @@ class UserCreateSerializer(serializers.ModelSerializer):
         }
     def create(self, validated_data):
         email = validated_data.get("email")
+        password = validated_data.get("password")
+
+
         validated_data["username"] = email
+
+        supabase_user_id = None
+
+        # Tenta criar / reaproveitar o usuário no Supabase Auth
+        if email and password:
+            try:
+                supabase_user_id = get_or_create_supabase_user(email, password)
+            except SupabaseAdminError as e:
+                # Se der problema no Supabase, loga e segue sem vincular
+                logger.warning(
+                    "Falha ao sincronizar usuário '%s' com Supabase Auth: %s",
+                    email,
+                    e,
+                )
+
+        # Cria o usuário no Django 
         user = User.objects.create_user(**validated_data)
-        UserProfile.objects.create(user=user)
+
+        # Cria o profile já com o supabase_user_id 
+        profile_kwargs = {}
+        if supabase_user_id:
+            profile_kwargs["supabase_user_id"] = supabase_user_id
+
+        UserProfile.objects.create(user=user, **profile_kwargs)
         return user
+
 
 class UserSerializer(serializers.ModelSerializer):
     profile = UserProfileSerializer(source='userprofile', required=False) 
